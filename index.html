@@ -332,6 +332,14 @@
                         <button id="btn-tambah-warga" onclick="openModal('modal-warga'); document.getElementById('form-warga').reset(); document.getElementById('warga-id').value=''; document.getElementById('modal-warga-title').innerText='Form Data Warga'; document.getElementById('w-jalur-container').classList.remove('hidden');" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition-all flex w-full sm:w-auto justify-center items-center">
                             <i class="fas fa-plus mr-2"></i> Tambah Warga Baru
                         </button>
+                        
+                        <!-- Tambahan: Kolom Fitur Pencarian Warga -->
+                        <div class="relative w-full sm:w-72">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-slate-400"></i>
+                            </div>
+                            <input type="text" id="search-warga" onkeyup="renderTableWarga()" placeholder="Cari NIK atau Nama..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium shadow-sm transition-all">
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden w-full">
@@ -904,7 +912,7 @@
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
             const btn = document.getElementById('btn-login');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+            btn.innerHTML = 'Memproses...';
 
             setTimeout(() => {
                 const user = dbUsers.find(x => x.username === u && x.password === p);
@@ -930,12 +938,15 @@
 
             if (user.role === 'Organisasi') {
                 const isPosyandu = user.rt.includes('Posyandu');
+                
+                // Jika Posyandu, sembunyikan semua kecuali Dashboard & Organisasi
                 const navsToHideForOrg = isPosyandu 
                     ? ['nav-warga', 'nav-mutasi', 'nav-laporan', 'menu-admin'] 
                     : ['nav-dashboard', 'nav-warga', 'nav-mutasi', 'nav-laporan', 'menu-admin'];
                 
                 navsToHideForOrg.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
                 
+                // Tampilkan label Menu Utama jika Posyandu (karena ada Dashboard), sembunyikan sisanya
                 navLabels.forEach(el => {
                     if (el.innerText.includes('Administrasi')) el.classList.add('hidden');
                     else if (!isPosyandu && el.innerText.includes('Menu Utama')) el.classList.add('hidden');
@@ -944,28 +955,15 @@
                 document.getElementById('dukuh-filter-container').classList.add('hidden');
                 document.getElementById('filter-rt-org-container').classList.add('hidden');
                 
-                const filterOrg = document.getElementById('filter-org');
-                if(filterOrg) {
-                    Array.from(filterOrg.options).forEach(opt => {
-                        if(opt.value.includes(user.rt) || user.rt.includes(opt.value)) filterOrg.value = opt.value;
-                    });
-                    filterOrg.disabled = true;
-                    filterOrg.classList.add('bg-slate-200', 'cursor-not-allowed');
-                }
-                
+                // Arahkan otomatis ke Dashboard (Posyandu) atau Organisasi (PKK/LPMK)
                 if (isPosyandu) switchView('dashboard');
                 else switchView('organisasi');
 
             } else {
+                // Tampilkan Menu normal untuk Dukuh / RT
                 const allNavs = ['nav-dashboard', 'nav-warga', 'nav-mutasi', 'nav-laporan', 'menu-admin'];
                 allNavs.forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('hidden'); });
                 navLabels.forEach(el => el.classList.remove('hidden'));
-                
-                const filterOrg = document.getElementById('filter-org');
-                if(filterOrg) {
-                    filterOrg.disabled = false;
-                    filterOrg.classList.remove('bg-slate-200', 'cursor-not-allowed');
-                }
 
                 if(user.role === 'Dukuh') {
                     document.getElementById('menu-admin').classList.remove('hidden');
@@ -977,6 +975,36 @@
                     document.getElementById('filter-rt-org-container').classList.add('hidden');
                 }
                 switchView('dashboard');
+            }
+
+            // LOGIKA PENGUNCIAN DROPDOWN ORGANISASI / KEGIATAN
+            const filterOrg = document.getElementById('filter-org'); // Dropdown Filter Tampilan
+            const inputKgOrg = document.getElementById('kg-org'); // Dropdown Input Form Tambah Agenda
+
+            if (user.role === 'Dukuh') {
+                // Dukuh bisa melihat & menginput untuk semua RT/Organisasi
+                if(filterOrg) { filterOrg.disabled = false; filterOrg.classList.remove('bg-slate-200', 'cursor-not-allowed'); }
+                if(inputKgOrg) { inputKgOrg.disabled = false; inputKgOrg.classList.remove('bg-slate-200', 'cursor-not-allowed'); }
+            } else {
+                // RT dan Organisasi DILOCK (dikunci) hanya pada milik mereka sendiri
+                if(filterOrg) {
+                    Array.from(filterOrg.options).forEach(opt => {
+                        if(opt.value === user.rt || opt.value.includes(user.rt) || user.rt.includes(opt.value)) {
+                            filterOrg.value = opt.value;
+                        }
+                    });
+                    filterOrg.disabled = true;
+                    filterOrg.classList.add('bg-slate-200', 'cursor-not-allowed');
+                }
+                if(inputKgOrg) {
+                    Array.from(inputKgOrg.options).forEach(opt => {
+                        if(opt.value === user.rt || opt.value.includes(user.rt) || user.rt.includes(opt.value)) {
+                            inputKgOrg.value = opt.value;
+                        }
+                    });
+                    inputKgOrg.disabled = true;
+                    inputKgOrg.classList.add('bg-slate-200', 'cursor-not-allowed');
+                }
             }
         }
 
@@ -1138,23 +1166,44 @@
         function renderTableWarga() {
             const tbody = document.getElementById('warga-tbody');
             tbody.innerHTML = '';
-            const data = getFilteredWarga();
+            let data = getFilteredWarga();
 
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500 italic">Belum ada data warga.</td></tr>`; return; }
+            // Tambahan: Logika Pencarian Real-time (ANTI ERROR ANGKA)
+            const searchInput = document.getElementById('search-warga');
+            if (searchInput && searchInput.value) {
+                const q = searchInput.value.toLowerCase();
+                data = data.filter(w => {
+                    // Konversi paksa ke String untuk mencegah error dari format angka Google Sheets
+                    const namaSafe = w.nama ? String(w.nama).toLowerCase() : '';
+                    const nikSafe = w.nik ? String(w.nik).toLowerCase() : '';
+                    return namaSafe.includes(q) || nikSafe.includes(q);
+                });
+            }
+
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500 italic">Data tidak ditemukan.</td></tr>`; return; }
 
             data.forEach(w => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50";
                 
+                // Pelindung string replace pada pemanggilan fungsi aksi
+                const namaAman = String(w.nama || '').replace(/'/g, "\\'");
+                
                 // 3 Tombol Aksi: Edit, Hapus, Mutasi
                 const aksi = currentUser.role === 'RT' ? 
                     `<div class="flex flex-wrap gap-1 sm:gap-1.5 justify-end">
                         <button onclick="editWarga(${w.id})" class="text-[10px] sm:text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-2 py-1.5 rounded-md font-bold" title="Edit"><i class="fas fa-edit"></i> <span class="hidden sm:inline">Edit</span></button>
-                        <button onclick="hapusWarga(${w.id}, '${(w.nama || '').replace(/'/g, "\\'")}')" class="text-[10px] sm:text-xs bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1.5 rounded-md font-bold" title="Hapus"><i class="fas fa-trash"></i> <span class="hidden sm:inline">Hapus</span></button>
-                        <button onclick="siapkanMutasi(${w.id}, '${(w.nama || '').replace(/'/g, "\\'")}')" class="text-[10px] sm:text-xs bg-rose-100 text-rose-700 hover:bg-rose-200 px-2 py-1.5 rounded-md font-bold" title="Mutasi"><i class="fas fa-exchange-alt"></i> <span class="hidden xl:inline">Mutasi</span></button>
+                        <button onclick="hapusWarga(${w.id}, '${namaAman}')" class="text-[10px] sm:text-xs bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1.5 rounded-md font-bold" title="Hapus"><i class="fas fa-trash"></i> <span class="hidden sm:inline">Hapus</span></button>
+                        <button onclick="siapkanMutasi(${w.id}, '${namaAman}')" class="text-[10px] sm:text-xs bg-rose-100 text-rose-700 hover:bg-rose-200 px-2 py-1.5 rounded-md font-bold" title="Mutasi"><i class="fas fa-exchange-alt"></i> <span class="hidden xl:inline">Mutasi</span></button>
                     </div>` : `<span class="text-xs text-slate-400 italic">Hanya RT</span>`;
                     
-                const bdg = w.domisili === 'Tetap' ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 mt-1 inline-block rounded border border-emerald-200 font-bold">Warga Tetap</span>` : `<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 mt-1 inline-block rounded font-bold">Pengontrak</span>`;
+                let bdg = w.domisili === 'Tetap' ? `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 mt-1 inline-block rounded border border-emerald-200 font-bold">Warga Tetap</span>` : `<span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 mt-1 inline-block rounded font-bold">Pengontrak</span>`;
+
+                // Tambahan: Deteksi & Keterangan Lencana Mutasi Datang (Pendatang)
+                const isPendatang = dbMutasi.find(m => m.nama === w.nama && m.jenis === 'Datang');
+                if (isPendatang) {
+                    bdg += ` <span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 mt-1 ml-1 inline-block rounded border border-sky-200 font-bold"><i class="fas fa-plane-arrival mr-1"></i> Pendatang</span>`;
+                }
 
                 tr.innerHTML = `<td class="px-4 sm:px-6 py-4"><div class="text-sm font-extrabold">${w.nik}</div><div class="text-[10px] sm:text-xs text-slate-500 font-mono mt-1">KK: ${w.kk}</div></td>
                                 <td class="px-4 sm:px-6 py-4"><div class="text-sm font-bold">${w.nama}</div><div class="text-[10px] sm:text-xs text-slate-500 mt-1">${hitungUmur(w.tgl)} Tahun</div></td>
