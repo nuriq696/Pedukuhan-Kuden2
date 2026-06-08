@@ -566,7 +566,7 @@
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
             } else {
-                if(GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI" || GAS_URL === "") return;
+                if(GAS_URL === "https://script.google.com/macros/s/AKfycbxX1ogLyi2Kxr6BcQNwAAHW9oeo51rnsgbv59jM5t8YsmQxcykNbTE0bTMpP7exiFPw0w/exec" || GAS_URL === "") return;
                 try { const res = await fetch(GAS_URL + "?action=getData"); const data = await res.json(); if(data.users) dbUsers = data.users; if(data.warga) dbWarga = data.warga; if(data.mutasi) dbMutasi = data.mutasi; if(data.kegiatan) dbKegiatan = data.kegiatan; if(data.laporan) dbLaporan = data.laporan; if(data.pengumuman) dbPengumuman = data.pengumuman; } catch(e) { }
             }
         }
@@ -575,7 +575,7 @@
             if (IS_PREVIEW) {
                 localStorage.setItem('sidukuh_warga', JSON.stringify(dbWarga)); localStorage.setItem('sidukuh_mutasi', JSON.stringify(dbMutasi)); localStorage.setItem('sidukuh_users', JSON.stringify(dbUsers)); localStorage.setItem('sidukuh_pengumuman', JSON.stringify(dbPengumuman));
             } else {
-                if(GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI" || GAS_URL === "") return;
+                if(GAS_URL === "https://script.google.com/macros/s/AKfycbxX1ogLyi2Kxr6BcQNwAAHW9oeo51rnsgbv59jM5t8YsmQxcykNbTE0bTMpP7exiFPw0w/exec" || GAS_URL === "") return;
                 try { await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', users: dbUsers, warga: dbWarga, mutasi: dbMutasi, kegiatan: dbKegiatan, laporan: dbLaporan, pengumuman: dbPengumuman }) }); } catch(e) { }
             }
         }
