@@ -519,7 +519,7 @@
         // KONFIGURASI APLIKASI
         // ====================================================
         const IS_PREVIEW = false; // GANTI JADI false JIKA SUDAH PUNYA URL GAS ASLI DAN AKAN DIDEPLOY KE BLOGGER
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyNNV9eVaaJyvzcglIlOVDk4qfa1kMBJoFuftzPouMQIgJ47lomWeLh67KNOx98yfrvFA/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxX1ogLyi2Kxr6BcQNwAAHW9oeo51rnsgbv59jM5t8YsmQxcykNbTE0bTMpP7exiFPw0w/exec";
 
         let currentUser = null;
         let deferredPrompt; 
@@ -566,7 +566,7 @@
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
             } else {
-                if(GAS_URL === "https://script.google.com/macros/s/AKfycbyNNV9eVaaJyvzcglIlOVDk4qfa1kMBJoFuftzPouMQIgJ47lomWeLh67KNOx98yfrvFA/exec" || GAS_URL === "") return;
+                if(GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI" || GAS_URL === "") return;
                 try { const res = await fetch(GAS_URL + "?action=getData"); const data = await res.json(); if(data.users) dbUsers = data.users; if(data.warga) dbWarga = data.warga; if(data.mutasi) dbMutasi = data.mutasi; if(data.kegiatan) dbKegiatan = data.kegiatan; if(data.laporan) dbLaporan = data.laporan; if(data.pengumuman) dbPengumuman = data.pengumuman; } catch(e) { }
             }
         }
@@ -575,7 +575,7 @@
             if (IS_PREVIEW) {
                 localStorage.setItem('sidukuh_warga', JSON.stringify(dbWarga)); localStorage.setItem('sidukuh_mutasi', JSON.stringify(dbMutasi)); localStorage.setItem('sidukuh_users', JSON.stringify(dbUsers)); localStorage.setItem('sidukuh_pengumuman', JSON.stringify(dbPengumuman));
             } else {
-                if(GAS_URL === "https://script.google.com/macros/s/AKfycbyNNV9eVaaJyvzcglIlOVDk4qfa1kMBJoFuftzPouMQIgJ47lomWeLh67KNOx98yfrvFA/exec" || GAS_URL === "") return;
+                if(GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI" || GAS_URL === "") return;
                 try { await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', users: dbUsers, warga: dbWarga, mutasi: dbMutasi, kegiatan: dbKegiatan, laporan: dbLaporan, pengumuman: dbPengumuman }) }); } catch(e) { }
             }
         }
@@ -738,8 +738,9 @@
                 else if (cat.startsWith('Pendapatan_')) { const pd = cat.replace('Pendapatan_', ''); data = data.filter(w => w.pendapatan === pd); }
                 else if (cat.startsWith('Pekerjaan_')) { const pk = cat.replace('Pekerjaan_', ''); data = data.filter(w => w.pekerjaan === pk); }
             }
+            
             const q = document.getElementById('search-warga')?.value.toLowerCase();
-            if (q) data = data.filter(w => (w.nama||'').toLowerCase().includes(q) || (w.nik||'').toLowerCase().includes(q));
+            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q));
 
             if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500 italic">Data tidak ditemukan.</td></tr>`; return; }
 
@@ -789,6 +790,10 @@
                 else if (cat.startsWith('Pendapatan_')) { const pd = cat.replace('Pendapatan_', ''); data = data.filter(w => w.pendapatan === pd); }
                 else if (cat.startsWith('Pekerjaan_')) { const pk = cat.replace('Pekerjaan_', ''); data = data.filter(w => w.pekerjaan === pk); }
             }
+            
+            const q = document.getElementById('search-warga')?.value.toLowerCase();
+            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q));
+
             if(data.length === 0) { showToast("Tidak ada data untuk dicetak!"); return; }
 
             let printWindow = window.open('', '_blank');
