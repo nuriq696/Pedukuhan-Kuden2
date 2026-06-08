@@ -639,7 +639,7 @@
             }
         });
 
-        // DATA DUMMY AWAL
+        // DATA DUMMY AWAL (Ini akan digantikan oleh data dari Google Sheets jika IS_PREVIEW = false)
         let dbUsers = [
             { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
             { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
@@ -656,6 +656,13 @@
         ];
 
         async function loadFromMemory() {
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.disabled = true;
+                btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memuat Database...';
+                btnLogin.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+
             if (IS_PREVIEW) {
                 try {
                     const mw = localStorage.getItem('sidukuh_warga'); if(mw && JSON.parse(mw).length > 0) dbWarga = JSON.parse(mw);
@@ -663,9 +670,46 @@
                     const mu = localStorage.getItem('sidukuh_users'); if(mu && JSON.parse(mu).length > 0) dbUsers = JSON.parse(mu);
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
+                enableLoginButton();
             } else {
-                if(!GAS_URL || GAS_URL === "https://script.google.com/macros/s/AKfycbwQTBSCLFl7mYmPCNvANEpcyhVZM91TC-NJu2W7rrtT3F6iON-7WkwafideeRa1Y_k8/exec") return;
-                try { const res = await fetch(GAS_URL + "?action=getData"); const data = await res.json(); if(data.users) dbUsers = data.users; if(data.warga) dbWarga = data.warga; if(data.mutasi) dbMutasi = data.mutasi; if(data.kegiatan) dbKegiatan = data.kegiatan; if(data.laporan) dbLaporan = data.laporan; if(data.pengumuman) dbPengumuman = data.pengumuman; } catch(e) { console.error("Gagal load data GAS", e); }
+                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) {
+                    if (btnLogin) btnLogin.innerHTML = 'Error: URL GAS Belum Valid';
+                    return;
+                }
+                try { 
+                    const res = await fetch(GAS_URL + "?action=getData"); 
+                    const data = await res.json(); 
+                    
+                    if(data.users) dbUsers = data.users.length > 0 ? data.users : [{ username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' }]; 
+                    if(data.warga) dbWarga = data.warga; 
+                    if(data.mutasi) dbMutasi = data.mutasi; 
+                    if(data.kegiatan) dbKegiatan = data.kegiatan; 
+                    if(data.laporan) dbLaporan = data.laporan; 
+                    if(data.pengumuman) dbPengumuman = data.pengumuman; 
+
+                    enableLoginButton();
+                    
+                    if (currentUser) {
+                        applyDukuhFilter(); 
+                        renderOrganisasiTable();
+                        if (currentUser.role === 'Dukuh') {
+                            renderPenggunaTable();
+                            renderPengumumanTable();
+                        }
+                    }
+                } catch(e) { 
+                    console.error("Gagal load data GAS", e); 
+                    if (btnLogin) btnLogin.innerHTML = 'Gagal Memuat DB (Periksa Koneksi)';
+                }
+            }
+        }
+
+        function enableLoginButton() {
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Masuk ke Sistem <i class="fas fa-arrow-right ml-2"></i>';
+                btnLogin.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -673,7 +717,7 @@
             if (IS_PREVIEW) {
                 localStorage.setItem('sidukuh_warga', JSON.stringify(dbWarga)); localStorage.setItem('sidukuh_mutasi', JSON.stringify(dbMutasi)); localStorage.setItem('sidukuh_users', JSON.stringify(dbUsers)); localStorage.setItem('sidukuh_pengumuman', JSON.stringify(dbPengumuman));
             } else {
-                if(!GAS_URL || GAS_URL === "https://script.google.com/macros/s/AKfycbwQTBSCLFl7mYmPCNvANEpcyhVZM91TC-NJu2W7rrtT3F6iON-7WkwafideeRa1Y_k8/exec") return;
+                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) return;
                 try { await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', users: dbUsers, warga: dbWarga, mutasi: dbMutasi, kegiatan: dbKegiatan, laporan: dbLaporan, pengumuman: dbPengumuman }) }); } catch(e) { console.error("Gagal save data GAS", e); }
             }
         }
