@@ -28,6 +28,12 @@
         @keyframes bounce-subtle { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
         .animate-bounce-subtle { animation: bounce-subtle 2s infinite; }
         .blogger-thumbnail { display: none; }
+        
+        /* CSS tambahan untuk Accordion (Expand/Collapse) */
+        .accordion-content { transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out; max-height: 0; overflow: hidden; }
+        .accordion-content.open { max-height: 300px; overflow-y: auto; } /* max-height bisa disesuaikan */
+        .accordion-icon { transition: transform 0.3s ease; }
+        .accordion-btn[aria-expanded="true"] .accordion-icon { transform: rotate(180deg); }
     </style>
 </head>
 <body class="text-slate-800 antialiased overflow-hidden">
@@ -249,7 +255,7 @@
                         <!-- TAMBAHAN: BLOK SEBARAN PER RT UNTUK POSYANDU -->
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full mb-6 sm:mb-8">
                             <h3 class="text-lg font-extrabold text-slate-800 mb-6 flex items-center"><i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i> Sebaran Sasaran per RT</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4" id="posy-rt-breakdown"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="posy-rt-breakdown"></div>
                         </div>
 
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full">
@@ -872,6 +878,23 @@
             return age < 0 ? 0 : age;
         }
 
+        // Fungsi Helper untuk Accordion Daftar Nama
+        function toggleAccordion(rtId) {
+            const content = document.getElementById(`content-${rtId}`);
+            const btn = document.getElementById(`btn-${rtId}`);
+            if (content && btn) {
+                const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', !isExpanded);
+                if (!isExpanded) {
+                    content.classList.add('open');
+                    content.classList.add('p-2'); // Tambah padding saat terbuka
+                } else {
+                    content.classList.remove('open');
+                    content.classList.remove('p-2'); // Hilangkan padding saat tertutup
+                }
+            }
+        }
+
         function renderDashboard() {
             const pBanner = document.getElementById('dashboard-pengumuman');
             if (pBanner) {
@@ -904,8 +927,14 @@
                 const isBalita = String(currentUser.rt).includes('Balita'); 
                 let targetTotal = 0, targetL = 0, targetP = 0;
                 
-                // TAMBAHAN: Variabel untuk menyimpan hitungan per RT (Total, L, P)
-                let rtStats = { 'RT 01': {total:0, L:0, P:0}, 'RT 02': {total:0, L:0, P:0}, 'RT 03': {total:0, L:0, P:0}, 'RT 04': {total:0, L:0, P:0}, 'RT 05': {total:0, L:0, P:0}, 'RT 06': {total:0, L:0, P:0}, 'RT 07': {total:0, L:0, P:0}, 'RT 08': {total:0, L:0, P:0}, 'RT 09': {total:0, L:0, P:0} };
+                // TAMBAHAN: Variabel untuk menyimpan hitungan dan DAFTAR NAMA per RT
+                let rtStats = { 
+                    'RT 01': {total:0, L:0, P:0, names: []}, 'RT 02': {total:0, L:0, P:0, names: []}, 
+                    'RT 03': {total:0, L:0, P:0, names: []}, 'RT 04': {total:0, L:0, P:0, names: []}, 
+                    'RT 05': {total:0, L:0, P:0, names: []}, 'RT 06': {total:0, L:0, P:0, names: []}, 
+                    'RT 07': {total:0, L:0, P:0, names: []}, 'RT 08': {total:0, L:0, P:0, names: []}, 
+                    'RT 09': {total:0, L:0, P:0, names: []} 
+                };
                 
                 dbWarga.forEach(w => {
                     const isActive = !w.status || String(w.status).trim().toLowerCase() === 'aktif';
@@ -924,11 +953,14 @@
                         if(jk === 'L') targetL++; 
                         else if(jk === 'P') targetP++; 
                         
-                        // TAMBAHAN: Masukkan ke perhitungan per RT
+                        // TAMBAHAN: Masukkan ke perhitungan per RT dan simpan nama
                         if (w.rt && rtStats[w.rt] !== undefined) {
                             rtStats[w.rt].total++;
                             if (jk === 'L') rtStats[w.rt].L++;
                             else if (jk === 'P') rtStats[w.rt].P++;
+                            
+                            // Simpan nama, jenis kelamin, dan umur
+                            rtStats[w.rt].names.push({ nama: w.nama, jk: jk, umur: u });
                         }
                     }
                 });
@@ -944,16 +976,44 @@
                     rtBreakdownDiv.innerHTML = '';
                     for (let rt in rtStats) {
                         const s = rtStats[rt];
+                        // Buat ID unik yang aman untuk HTML (misal: 'RT 01' menjadi 'RT-01')
+                        const safeRtId = rt.replace(/\s+/g, '-'); 
+                        
+                        // Siapkan daftar nama dalam bentuk HTML
+                        let namesHtml = '';
+                        if (s.names.length > 0) {
+                            namesHtml = '<ul class="space-y-1 mt-1">';
+                            s.names.forEach((person, idx) => {
+                                // Ikon berbeda berdasarkan jenis kelamin
+                                const icon = person.jk === 'L' ? '<i class="fas fa-male text-cyan-500 w-3"></i>' : '<i class="fas fa-female text-pink-500 w-3"></i>';
+                                namesHtml += `<li class="flex justify-between items-center text-[10px] text-slate-600 border-b border-slate-100 last:border-0 pb-1 last:pb-0"><div class="flex items-center gap-1.5 truncate pr-2">${icon} <span class="truncate">${person.nama}</span></div><span class="font-bold text-slate-400 whitespace-nowrap">${person.umur} th</span></li>`;
+                            });
+                            namesHtml += '</ul>';
+                        } else {
+                            namesHtml = `<p class="text-[10px] text-slate-400 italic text-center py-2">Tidak ada sasaran di RT ini.</p>`;
+                        }
+
                         rtBreakdownDiv.innerHTML += `
-                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col hover:bg-indigo-50 transition-colors shadow-sm">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase text-center border-b border-slate-200 pb-1 mb-1">${rt}</span>
-                            <div class="text-center mt-1">
-                                <span class="text-2xl font-extrabold text-indigo-600">${s.total}</span>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden hover:border-indigo-300 transition-colors shadow-sm flex flex-col">
+                            <div class="p-3 bg-white">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-slate-800 uppercase">${rt}</span>
+                                    <span class="text-lg font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${s.total}</span>
+                                </div>
+                                <div class="flex justify-start gap-4 text-[10px] font-bold mt-2 border-t border-slate-100 pt-2">
+                                    <span class="text-cyan-600 flex items-center gap-1" title="Laki-Laki"><i class="fas fa-male"></i> L: ${s.L}</span>
+                                    <span class="text-pink-500 flex items-center gap-1" title="Perempuan"><i class="fas fa-female"></i> P: ${s.P}</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center text-[10px] font-bold mt-2 bg-white p-1.5 rounded-lg border border-slate-100">
-                                <span class="text-cyan-600 flex items-center gap-1" title="Laki-Laki"><i class="fas fa-male text-xs"></i> ${s.L}</span>
-                                <span class="text-slate-300">|</span>
-                                <span class="text-pink-500 flex items-center gap-1" title="Perempuan"><i class="fas fa-female text-xs"></i> ${s.P}</span>
+                            
+                            <!-- Tombol Accordion -->
+                            <button id="btn-${safeRtId}" aria-expanded="false" onclick="toggleAccordion('${safeRtId}')" class="accordion-btn w-full bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600 py-1.5 flex justify-center items-center gap-1 border-t border-slate-200 transition-colors">
+                                Lihat Daftar Nama <i class="fas fa-chevron-down accordion-icon text-[8px]"></i>
+                            </button>
+                            
+                            <!-- Isi Accordion (Daftar Nama) -->
+                            <div id="content-${safeRtId}" class="accordion-content bg-white border-t border-slate-100 no-scrollbar">
+                                ${namesHtml}
                             </div>
                         </div>`;
                     }
