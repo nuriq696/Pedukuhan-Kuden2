@@ -245,6 +245,13 @@
                             <div class="bg-gradient-to-b from-cyan-400 to-cyan-500 rounded-[2rem] shadow-xl p-5 text-white"><i class="fas fa-male text-3xl opacity-70 mb-4"></i><div><h3 class="text-4xl sm:text-5xl font-extrabold mb-1" id="posy-stat-l">0</h3><p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-90">Laki-Laki</p></div></div>
                             <div class="bg-gradient-to-b from-pink-400 to-pink-500 rounded-[2rem] shadow-xl p-5 text-white"><i class="fas fa-female text-3xl opacity-70 mb-4"></i><div><h3 class="text-4xl sm:text-5xl font-extrabold mb-1" id="posy-stat-p">0</h3><p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-90">Perempuan</p></div></div>
                         </div>
+                        
+                        <!-- TAMBAHAN: BLOK SEBARAN PER RT UNTUK POSYANDU -->
+                        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full mb-6 sm:mb-8">
+                            <h3 class="text-lg font-extrabold text-slate-800 mb-6 flex items-center"><i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i> Sebaran Sasaran per RT</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4" id="posy-rt-breakdown"></div>
+                        </div>
+
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full">
                             <h3 class="text-lg font-extrabold text-slate-800 mb-6 flex items-center"><i class="fas fa-calendar-alt text-orange-500 mr-3"></i> Agenda Terkini Posyandu</h3>
                             <div class="space-y-4" id="posy-agenda-list"></div>
@@ -567,7 +574,7 @@
         // KONFIGURASI APLIKASI
         // ====================================================
         const IS_PREVIEW = false; // GANTI JADI false JIKA SUDAH PUNYA URL GAS ASLI DAN AKAN DIDEPLOY KE BLOGGER
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwQTBSCLFl7mYmPCNvANEpcyhVZM91TC-NJu2W7rrtT3F6iON-7WkwafideeRa1Y_k8/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxUTudD6wZ0wi7XRl0e5NpL3HCAfkKh-4i_nI_7kpHNbPM01pjYVvP7eMhNSv7Y2-VDWQ/exec";
 
         let currentUser = null;
         let deferredPrompt; 
@@ -639,7 +646,7 @@
             }
         });
 
-        // DATA DUMMY AWAL (Ini akan digantikan oleh data dari Google Sheets jika IS_PREVIEW = false)
+        // DATA DUMMY AWAL
         let dbUsers = [
             { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
             { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
@@ -656,13 +663,6 @@
         ];
 
         async function loadFromMemory() {
-            const btnLogin = document.getElementById('btn-login');
-            if (btnLogin) {
-                btnLogin.disabled = true;
-                btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memuat Database...';
-                btnLogin.classList.add('opacity-70', 'cursor-not-allowed');
-            }
-
             if (IS_PREVIEW) {
                 try {
                     const mw = localStorage.getItem('sidukuh_warga'); if(mw && JSON.parse(mw).length > 0) dbWarga = JSON.parse(mw);
@@ -670,46 +670,9 @@
                     const mu = localStorage.getItem('sidukuh_users'); if(mu && JSON.parse(mu).length > 0) dbUsers = JSON.parse(mu);
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
-                enableLoginButton();
             } else {
-                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) {
-                    if (btnLogin) btnLogin.innerHTML = 'Error: URL GAS Belum Valid';
-                    return;
-                }
-                try { 
-                    const res = await fetch(GAS_URL + "?action=getData"); 
-                    const data = await res.json(); 
-                    
-                    if(data.users) dbUsers = data.users.length > 0 ? data.users : [{ username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' }]; 
-                    if(data.warga) dbWarga = data.warga; 
-                    if(data.mutasi) dbMutasi = data.mutasi; 
-                    if(data.kegiatan) dbKegiatan = data.kegiatan; 
-                    if(data.laporan) dbLaporan = data.laporan; 
-                    if(data.pengumuman) dbPengumuman = data.pengumuman; 
-
-                    enableLoginButton();
-                    
-                    if (currentUser) {
-                        applyDukuhFilter(); 
-                        renderOrganisasiTable();
-                        if (currentUser.role === 'Dukuh') {
-                            renderPenggunaTable();
-                            renderPengumumanTable();
-                        }
-                    }
-                } catch(e) { 
-                    console.error("Gagal load data GAS", e); 
-                    if (btnLogin) btnLogin.innerHTML = 'Gagal Memuat DB (Periksa Koneksi)';
-                }
-            }
-        }
-
-        function enableLoginButton() {
-            const btnLogin = document.getElementById('btn-login');
-            if (btnLogin) {
-                btnLogin.disabled = false;
-                btnLogin.innerHTML = 'Masuk ke Sistem <i class="fas fa-arrow-right ml-2"></i>';
-                btnLogin.classList.remove('opacity-70', 'cursor-not-allowed');
+                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") return;
+                try { const res = await fetch(GAS_URL + "?action=getData"); const data = await res.json(); if(data.users) dbUsers = data.users; if(data.warga) dbWarga = data.warga; if(data.mutasi) dbMutasi = data.mutasi; if(data.kegiatan) dbKegiatan = data.kegiatan; if(data.laporan) dbLaporan = data.laporan; if(data.pengumuman) dbPengumuman = data.pengumuman; } catch(e) { console.error("Gagal load data GAS", e); }
             }
         }
 
@@ -717,7 +680,7 @@
             if (IS_PREVIEW) {
                 localStorage.setItem('sidukuh_warga', JSON.stringify(dbWarga)); localStorage.setItem('sidukuh_mutasi', JSON.stringify(dbMutasi)); localStorage.setItem('sidukuh_users', JSON.stringify(dbUsers)); localStorage.setItem('sidukuh_pengumuman', JSON.stringify(dbPengumuman));
             } else {
-                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) return;
+                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") return;
                 try { await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', users: dbUsers, warga: dbWarga, mutasi: dbMutasi, kegiatan: dbKegiatan, laporan: dbLaporan, pengumuman: dbPengumuman }) }); } catch(e) { console.error("Gagal save data GAS", e); }
             }
         }
@@ -941,6 +904,9 @@
                 const isBalita = String(currentUser.rt).includes('Balita'); 
                 let targetTotal = 0, targetL = 0, targetP = 0;
                 
+                // TAMBAHAN: Variabel untuk menyimpan hitungan per RT (Total, L, P)
+                let rtStats = { 'RT 01': {total:0, L:0, P:0}, 'RT 02': {total:0, L:0, P:0}, 'RT 03': {total:0, L:0, P:0}, 'RT 04': {total:0, L:0, P:0}, 'RT 05': {total:0, L:0, P:0}, 'RT 06': {total:0, L:0, P:0}, 'RT 07': {total:0, L:0, P:0}, 'RT 08': {total:0, L:0, P:0}, 'RT 09': {total:0, L:0, P:0} };
+                
                 dbWarga.forEach(w => {
                     const isActive = !w.status || String(w.status).trim().toLowerCase() === 'aktif';
                     if (!isActive) return;
@@ -957,6 +923,13 @@
                         const jk = String(w.jk || '').trim().toUpperCase();
                         if(jk === 'L') targetL++; 
                         else if(jk === 'P') targetP++; 
+                        
+                        // TAMBAHAN: Masukkan ke perhitungan per RT
+                        if (w.rt && rtStats[w.rt] !== undefined) {
+                            rtStats[w.rt].total++;
+                            if (jk === 'L') rtStats[w.rt].L++;
+                            else if (jk === 'P') rtStats[w.rt].P++;
+                        }
                     }
                 });
 
@@ -964,6 +937,27 @@
                 const pst = document.getElementById('posy-stat-total'); if(pst) pst.innerText = targetTotal; 
                 const psl = document.getElementById('posy-stat-l'); if(psl) psl.innerText = targetL; 
                 const psp = document.getElementById('posy-stat-p'); if(psp) psp.innerText = targetP;
+
+                // TAMBAHAN: Render kotak-kotak Rincian RT ke HTML
+                const rtBreakdownDiv = document.getElementById('posy-rt-breakdown');
+                if (rtBreakdownDiv) {
+                    rtBreakdownDiv.innerHTML = '';
+                    for (let rt in rtStats) {
+                        const s = rtStats[rt];
+                        rtBreakdownDiv.innerHTML += `
+                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex flex-col hover:bg-indigo-50 transition-colors shadow-sm">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase text-center border-b border-slate-200 pb-1 mb-1">${rt}</span>
+                            <div class="text-center mt-1">
+                                <span class="text-2xl font-extrabold text-indigo-600">${s.total}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] font-bold mt-2 bg-white p-1.5 rounded-lg border border-slate-100">
+                                <span class="text-cyan-600 flex items-center gap-1" title="Laki-Laki"><i class="fas fa-male text-xs"></i> ${s.L}</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-pink-500 flex items-center gap-1" title="Perempuan"><i class="fas fa-female text-xs"></i> ${s.P}</span>
+                            </div>
+                        </div>`;
+                    }
+                }
 
                 const pAgendaDiv = document.getElementById('posy-agenda-list'); 
                 if (pAgendaDiv) {
