@@ -652,24 +652,29 @@
             }
         });
 
-        // DATA DUMMY AWAL
-        let dbUsers = [
-            { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
-            { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
-        ];
-
-        let dbWarga = [
-            { id: 1, nik: '3404010101900001', kk: '3404010101900001', nama: 'Budi Santoso', tempat: 'Bantul', tgl: '1990-01-01', jk: 'L', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['LPMK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'O', telepon: '08123456789', pekerjaan: 'Pegawai Negeri / PNS', pendapatan: '3 Juta - 5 Juta', hobi: 'Bersepeda', kesehatan: 'Sehat', bantuan: [] },
-            { id: 2, nik: '3404010202950002', kk: '3404010101900001', nama: 'Siti Aminah', tempat: 'Bantul', tgl: '1995-02-02', jk: 'P', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['PKK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'A', telepon: '08198765432', pekerjaan: 'Ibu Rumah Tangga', pendapatan: 'Belum/Tidak Berpenghasilan', hobi: 'Memasak', kesehatan: 'Asma', bantuan: ['PKH', 'BPNT'] }
-        ];
-
-        let dbMutasi = []; let dbKegiatan = []; let dbLaporan = [];
-        let dbPengumuman = [
-            { id: 1, tanggal: new Date().toISOString().split('T')[0], judul: 'Pengambilan Bantuan Tahap 3', isi: 'Diberitahukan kepada seluruh warga penerima bantuan agar mengambil dana di Balai Padukuhan besok pagi pukul 09.00 WIB.' }
-        ];
+        // DATA KOSONG (Dummy hanya akan dimuat jika IS_PREVIEW = true)
+        let dbUsers = [];
+        let dbWarga = [];
+        let dbMutasi = []; 
+        let dbKegiatan = []; 
+        let dbLaporan = [];
+        let dbPengumuman = [];
 
         async function loadFromMemory() {
             if (IS_PREVIEW) {
+                // Masukkan data dummy jika mode Preview Aktif
+                dbUsers = [
+                    { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
+                    { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
+                ];
+                dbWarga = [
+                    { id: 1, nik: '3404010101900001', kk: '3404010101900001', nama: 'Budi Santoso', tempat: 'Bantul', tgl: '1990-01-01', jk: 'L', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['LPMK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'O', telepon: '08123456789', pekerjaan: 'Pegawai Negeri / PNS', pendapatan: '3 Juta - 5 Juta', hobi: 'Bersepeda', kesehatan: 'Sehat', bantuan: [] },
+                    { id: 2, nik: '3404010202950002', kk: '3404010101900001', nama: 'Siti Aminah', tempat: 'Bantul', tgl: '1995-02-02', jk: 'P', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['PKK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'A', telepon: '08198765432', pekerjaan: 'Ibu Rumah Tangga', pendapatan: 'Belum/Tidak Berpenghasilan', hobi: 'Memasak', kesehatan: 'Asma', bantuan: ['PKH', 'BPNT'] }
+                ];
+                dbPengumuman = [
+                    { id: 1, tanggal: new Date().toISOString().split('T')[0], judul: 'Pengumuman Dummy', isi: 'Ganti IS_PREVIEW ke false untuk memakai Google Sheets asli.' }
+                ];
+
                 try {
                     const mw = localStorage.getItem('sidukuh_warga'); if(mw && JSON.parse(mw).length > 0) dbWarga = JSON.parse(mw);
                     const mm = localStorage.getItem('sidukuh_mutasi'); if(mm) dbMutasi = JSON.parse(mm);
@@ -677,8 +682,37 @@
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
             } else {
-                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") return;
-                try { const res = await fetch(GAS_URL + "?action=getData"); const data = await res.json(); if(data.users) dbUsers = data.users; if(data.warga) dbWarga = data.warga; if(data.mutasi) dbMutasi = data.mutasi; if(data.kegiatan) dbKegiatan = data.kegiatan; if(data.laporan) dbLaporan = data.laporan; if(data.pengumuman) dbPengumuman = data.pengumuman; } catch(e) { console.error("Gagal load data GAS", e); }
+                const btnLogin = document.getElementById('btn-login');
+                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") {
+                    if (btnLogin) btnLogin.innerHTML = 'URL GAS Belum Diatur!';
+                    return;
+                }
+                
+                if (btnLogin) {
+                    btnLogin.disabled = true;
+                    btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menghubungkan Google Sheets...';
+                }
+
+                try { 
+                    const res = await fetch(GAS_URL + "?action=getData"); 
+                    const data = await res.json(); 
+                    
+                    if(data.users && data.users.length > 0) dbUsers = data.users; else dbUsers = [{ username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' }]; 
+                    if(data.warga) dbWarga = data.warga; 
+                    if(data.mutasi) dbMutasi = data.mutasi; 
+                    if(data.kegiatan) dbKegiatan = data.kegiatan; 
+                    if(data.laporan) dbLaporan = data.laporan; 
+                    if(data.pengumuman) dbPengumuman = data.pengumuman; 
+
+                    if (btnLogin) {
+                        btnLogin.disabled = false;
+                        btnLogin.innerHTML = 'Masuk ke Sistem <i class="fas fa-arrow-right ml-2"></i>';
+                    }
+                } catch(e) { 
+                    console.error("Gagal load data GAS", e); 
+                    if (btnLogin) btnLogin.innerHTML = 'Koneksi Ditolak (Error)';
+                    showToast("Gagal Terhubung! Pastikan Deploy GAS aksesnya 'Siapa Saja' (Anyone)");
+                }
             }
         }
 
