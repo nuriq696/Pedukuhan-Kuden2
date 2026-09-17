@@ -28,12 +28,10 @@
         @keyframes bounce-subtle { 0%, 100% { transform: translateY(-5%); } 50% { transform: translateY(0); } }
         .animate-bounce-subtle { animation: bounce-subtle 2s infinite; }
         .blogger-thumbnail { display: none; }
-        
-        /* CSS tambahan untuk Accordion (Expand/Collapse) */
-        .accordion-content { transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out; max-height: 0; overflow: hidden; }
-        .accordion-content.open { max-height: 300px; overflow-y: auto; } /* max-height bisa disesuaikan */
-        .accordion-icon { transition: transform 0.3s ease; }
-        .accordion-btn[aria-expanded="true"] .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out, padding 0.3s ease; }
+        .accordion-content.open { max-height: 500px; }
+        .accordion-btn[aria-expanded="true"] .accordion-icon { transform: rotate(180deg); transition: transform 0.3s ease; }
+        .accordion-btn[aria-expanded="false"] .accordion-icon { transform: rotate(0deg); transition: transform 0.3s ease; }
     </style>
 </head>
 <body class="text-slate-800 antialiased overflow-hidden">
@@ -89,10 +87,7 @@
             <div class="p-6 bg-gradient-to-br from-indigo-50 to-white mx-4 mt-4 rounded-2xl border border-indigo-100/50">
                 <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Status Login</p>
                 <div class="flex items-center">
-                    <!-- Tombol Upload Avatar Tersembunyi -->
                     <input type="file" id="avatar-upload" class="hidden" accept="image/*" onchange="handleAvatarUpload(event)">
-                    
-                    <!-- Avatar UI (Bisa diklik) -->
                     <div class="relative w-12 h-12 mr-3 cursor-pointer group" onclick="document.getElementById('avatar-upload').click()" title="Ganti Foto Profil">
                         <div class="w-full h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold text-xl shadow-md overflow-hidden">
                             <span id="user-avatar-text">A</span>
@@ -102,7 +97,6 @@
                             <i class="fas fa-camera text-white text-xs"></i>
                         </div>
                     </div>
-
                     <div>
                         <h4 class="font-bold text-slate-800" id="user-name">Admin</h4>
                         <span class="text-xs font-semibold px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md" id="user-role-badge">Dukuh</span>
@@ -131,8 +125,8 @@
                 </a>
                 
                 <div id="menu-admin" class="hidden">
-                    <a href="#" onclick="switchView('pengumuman')" id="nav-pengumuman" class="flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <i class="fas fa-bullhorn w-6 text-center text-lg mr-3"></i> Papan Pengumuman
+                    <a href="#" onclick="switchView('pengumuman')" id="nav-pengumuman" class="flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-colors focus:ring-2 focus:ring-orange-500 outline-none">
+                        <i class="fas fa-bullhorn w-6 text-center text-lg mr-3 text-orange-500"></i> Papan Pengumuman
                     </a>
                     <a href="#" onclick="switchView('pengguna')" id="nav-pengguna" class="flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors focus:ring-2 focus:ring-indigo-500 outline-none">
                         <i class="fas fa-user-cog w-6 text-center text-lg mr-3"></i> Kelola Pengguna
@@ -161,7 +155,6 @@
                             </h2>
                             <p class="text-[10px] sm:text-xs font-medium text-slate-500" id="header-subtitle">Ringkasan demografi dan kegiatan</p>
                         </div>
-                        <!-- Tombol Install PWA Dinamis -->
                         <button id="btn-install-pwa" class="hidden animate-bounce-subtle ml-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center">
                             <i class="fas fa-download mr-1.5"></i> <span class="hidden sm:inline">Instal</span> App
                         </button>
@@ -183,10 +176,8 @@
                 <!-- ================= VIEW: DASHBOARD ================= -->
                 <div id="view-dashboard" class="view-section fade-in w-full">
 
-                    <!-- AREA PAPAN PENGUMUMAN DI DASHBOARD -->
                     <div id="dashboard-pengumuman" class="w-full space-y-4 mb-6 sm:mb-8 empty:hidden"></div>
 
-                    <!-- KONTEN DASHBOARD UTAMA -->
                     <div id="dashboard-main-content">
                         <!-- Top Stats Cards -->
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -246,16 +237,18 @@
 
                     <!-- KONTEN DASHBOARD KHUSUS POSYANDU -->
                     <div id="dashboard-posyandu-content" class="hidden">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
                             <div class="bg-gradient-to-b from-blue-500 to-blue-600 rounded-[2rem] shadow-xl p-5 text-white"><i class="fas fa-users text-3xl opacity-70 mb-4"></i><div><h3 class="text-4xl sm:text-5xl font-extrabold mb-1" id="posy-stat-total">0</h3><p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-90" id="posy-title-total">Total Sasaran</p></div></div>
                             <div class="bg-gradient-to-b from-cyan-400 to-cyan-500 rounded-[2rem] shadow-xl p-5 text-white"><i class="fas fa-male text-3xl opacity-70 mb-4"></i><div><h3 class="text-4xl sm:text-5xl font-extrabold mb-1" id="posy-stat-l">0</h3><p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-90">Laki-Laki</p></div></div>
                             <div class="bg-gradient-to-b from-pink-400 to-pink-500 rounded-[2rem] shadow-xl p-5 text-white"><i class="fas fa-female text-3xl opacity-70 mb-4"></i><div><h3 class="text-4xl sm:text-5xl font-extrabold mb-1" id="posy-stat-p">0</h3><p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-90">Perempuan</p></div></div>
                         </div>
-                        
-                        <!-- TAMBAHAN: BLOK SEBARAN PER RT UNTUK POSYANDU -->
-                        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full mb-6 sm:mb-8">
+
+                        <!-- Sebaran Sasaran per RT -->
+                        <div class="mb-6 bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full">
                             <h3 class="text-lg font-extrabold text-slate-800 mb-6 flex items-center"><i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i> Sebaran Sasaran per RT</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="posy-rt-breakdown"></div>
+                            <div id="posy-rt-breakdown" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- RT Stats will be injected here -->
+                            </div>
                         </div>
 
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 p-6 sm:p-8 w-full">
@@ -268,9 +261,8 @@
                 <!-- ================= VIEW: DATA WARGA ================= -->
                 <div id="view-warga" class="view-section hidden fade-in w-full">
                     <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
-                        <!-- Tombol Aksi -->
                         <div class="flex flex-wrap gap-2 w-full xl:w-auto">
-                            <button id="btn-tambah-warga" onclick="openModal('modal-warga'); document.getElementById('form-warga').reset(); document.getElementById('warga-id').value=''; document.getElementById('modal-warga-title').innerText='Form Data Warga'; document.getElementById('w-jalur-container').classList.remove('hidden');" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition-all flex flex-1 sm:flex-none justify-center items-center text-sm">
+                            <button id="btn-tambah-warga" onclick="bukaFormWarga('baru')" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition-all flex flex-1 sm:flex-none justify-center items-center text-sm">
                                 <i class="fas fa-plus mr-2"></i> Tambah Warga
                             </button>
                             <button onclick="cetakDataWarga()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all flex flex-1 sm:flex-none justify-center items-center text-sm">
@@ -278,9 +270,7 @@
                             </button>
                         </div>
                         
-                        <!-- Filter dan Search -->
                         <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-                            <!-- Dropdown Filter Kategori -->
                             <select id="filter-kategori-warga" onchange="renderTableWarga()" class="w-full sm:w-48 px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-bold text-slate-700 shadow-sm cursor-pointer transition-all">
                                 <option value="Semua">Semua Warga</option>
                                 <option value="KK">Kepala Keluarga (KK)</option>
@@ -338,10 +328,9 @@
                                 </optgroup>
                             </select>
 
-                            <!-- Search Bar Interaktif -->
                             <div class="relative w-full sm:w-64">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><i class="fas fa-search text-slate-400"></i></div>
-                                <input type="text" id="search-warga" onkeyup="renderTableWarga()" placeholder="Cari NIK atau Nama..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium shadow-sm transition-all">
+                                <input type="text" id="search-warga" onkeyup="renderTableWarga()" placeholder="Cari NIK, KK, atau Nama..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium shadow-sm transition-all">
                             </div>
                         </div>
                     </div>
@@ -365,8 +354,7 @@
                     </div>
                 </div>
 
-                <!-- ================= VIEW: MUTASI, ORGANISASI, LAPORAN, PENGGUNA (Tetap Sama Konsepnya) ================= -->
-                <!-- HTML Mutasi -->
+                <!-- ================= VIEW: MUTASI ================= -->
                 <div id="view-mutasi" class="view-section hidden fade-in w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                         <button onclick="bukaFormWarga('mutasi')" class="bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all flex w-full sm:w-auto justify-center items-center">
@@ -383,13 +371,13 @@
                     </div>
                 </div>
 
-                <!-- HTML Organisasi -->
+                <!-- ================= VIEW: ORGANISASI ================= -->
                 <div id="view-organisasi" class="view-section hidden fade-in w-full">
                     <div class="bg-white rounded-3xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 mb-6 w-full">
                         <div class="flex flex-col sm:flex-row gap-4 items-end">
                             <div class="w-full sm:w-1/3" id="filter-rt-org-container"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Filter Wilayah</label><select id="filter-rt-org" onchange="renderOrganisasiTable()" class="bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-bold rounded-xl outline-none p-3 w-full cursor-pointer"><option value="Semua">Semua Wilayah</option><option value="RT 01">RT 01</option><option value="RT 02">RT 02</option><option value="RT 03">RT 03</option><option value="RT 04">RT 04</option><option value="RT 05">RT 05</option><option value="RT 06">RT 06</option><option value="RT 07">RT 07</option><option value="RT 08">RT 08</option><option value="RT 09">RT 09</option></select></div>
                             <div class="w-full sm:w-1/3"><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Organisasi / Kegiatan</label><select id="filter-org" onchange="renderOrganisasiTable()" class="bg-slate-50 border border-slate-200 text-slate-800 text-sm font-bold rounded-xl outline-none p-3 w-full cursor-pointer"><option value="LPMK">LPMK</option><option value="PKK">PKK</option><option value="Takmir">Takmir Masjid</option><option value="Muda Mudi">Muda Mudi</option><option value="Posyandu Balita">Posyandu Balita</option><option value="Posyandu Lansia">Posyandu Lansia</option><option value="RT 01">Rapat RT 01</option><option value="RT 02">Rapat RT 02</option><option value="RT 03">Rapat RT 03</option><option value="RT 04">Rapat RT 04</option><option value="RT 05">Rapat RT 05</option><option value="RT 06">Rapat RT 06</option><option value="RT 07">Rapat RT 07</option><option value="RT 08">Rapat RT 08</option><option value="RT 09">Rapat RT 09</option></select></div>
-                            <div class="w-full sm:w-1/3"><button onclick="openModal('modal-kegiatan')" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center"><i class="fas fa-edit mr-2"></i> Tambah Laporan</button></div>
+                            <div class="w-full sm:w-1/3"><button onclick="bukaFormKegiatan()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center"><i class="fas fa-edit mr-2"></i> Tambah Laporan</button></div>
                         </div>
                     </div>
                     <div id="posyandu-info" class="hidden mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-2xl shadow-lg p-5 flex items-center">
@@ -402,13 +390,13 @@
                     </div>
                 </div>
 
-                <!-- HTML Laporan -->
+                <!-- ================= VIEW: LAPORAN ================= -->
                 <div id="view-laporan" class="view-section hidden fade-in w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"><button id="btn-kirim-laporan" onclick="kirimLaporan()" class="hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all w-full sm:w-auto items-center justify-center"><i class="fas fa-paper-plane mr-2"></i> Kirim Laporan Bulan Ini</button></div>
                     <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden w-full"><div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-100"><thead class="bg-slate-50/50"><tr><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Periode</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Pelapor</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Total Warga</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">L/P</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase hidden md:table-cell">Mutasi</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Status</th></tr></thead><tbody id="laporan-tbody" class="bg-white divide-y divide-slate-100"></tbody></table></div></div>
                 </div>
 
-                <!-- HTML Pengumuman (Admin) -->
+                <!-- ================= VIEW: PENGUMUMAN ================= -->
                 <div id="view-pengumuman" class="view-section hidden fade-in w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                         <button onclick="bukaFormPengumuman()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all w-full sm:w-auto text-center flex items-center justify-center"><i class="fas fa-plus mr-2"></i> Buat Pengumuman Baru</button>
@@ -429,7 +417,7 @@
                     </div>
                 </div>
 
-                <!-- HTML Pengguna -->
+                <!-- ================= VIEW: PENGGUNA ================= -->
                 <div id="view-pengguna" class="view-section hidden fade-in w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"><button onclick="openModal('modal-pengguna')" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all w-full sm:w-auto text-center"><i class="fas fa-user-plus mr-2"></i> Tambah Akun Baru</button></div>
                     <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden w-full"><div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-100"><thead class="bg-slate-50/50"><tr><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Username</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Password</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase hidden sm:table-cell">Role</th><th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase">Wilayah</th><th class="px-6 py-4 text-right text-xs font-extrabold text-slate-500 uppercase">Aksi</th></tr></thead><tbody id="pengguna-tbody" class="bg-white divide-y divide-slate-100"></tbody></table></div></div>
@@ -440,15 +428,41 @@
     </div>
 
     <!-- ================= MODALS ================= -->
+    <!-- Modal Warga -->
     <div id="modal-warga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto no-scrollbar fade-in">
             <div class="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 sticky top-0 z-10">
                 <h3 class="text-lg sm:text-xl font-extrabold text-slate-800" id="modal-warga-title">Form Data Warga</h3>
                 <button onclick="closeModal('modal-warga')" class="text-slate-400 hover:text-slate-700 bg-white rounded-full p-2 shadow-sm"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form id="form-warga" onsubmit="simpanWarga(event)" class="p-4 sm:p-8 space-y-5">
+            <form id="form-warga" onsubmit="simpanWarga(event)" class="p-4 sm:p-8">
                 <input type="hidden" id="warga-id">
-                <div id="w-jalur-container" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-4">
+
+                <!-- Fitur AI Scan KK -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-2xl border border-indigo-100 shadow-sm mb-6">
+                    <h4 class="text-sm font-extrabold text-indigo-800 uppercase tracking-wider mb-3 flex items-center">
+                        <i class="fas fa-magic text-purple-600 mr-2"></i> Isi Otomatis dengan Scan KK (AI)
+                    </h4>
+                    <p class="text-xs text-indigo-600/80 mb-4 font-medium">Ambil foto dokumen (KK/KTP) untuk otomatis membaca dan mengisi formulir.</p>
+                    <div class="flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="relative w-full sm:w-auto flex-1">
+                            <input type="file" id="scan-kk-file" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event)">
+                            <button type="button" onclick="document.getElementById('scan-kk-file').click()" class="w-full bg-white border-2 border-dashed border-indigo-300 hover:border-indigo-500 text-indigo-700 font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-camera text-lg"></i> Ambil Foto / Upload
+                            </button>
+                        </div>
+                        <button type="button" id="btn-scan-ai" onclick="prosesScanKK()" class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-robot text-lg"></i> Ekstrak Data
+                        </button>
+                    </div>
+                    <div id="scan-preview-container" class="hidden mt-4 relative w-full h-40 bg-white/50 rounded-xl overflow-hidden flex items-center justify-center border border-indigo-200 shadow-inner">
+                         <img id="scan-preview-img" src="" class="max-h-full max-w-full object-contain">
+                         <button type="button" onclick="hapusPreviewKK()" class="absolute top-2 right-2 bg-rose-500 text-white w-8 h-8 rounded-full shadow-md flex items-center justify-center hover:bg-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+                    </div>
+                    <p id="scan-status" class="text-xs font-bold mt-3 hidden"></p>
+                </div>
+
+                <div id="w-jalur-container" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
                     <label class="block text-sm font-bold text-indigo-800 mb-2">Jalur Pendaftaran</label>
                     <select id="w-jalur" class="w-full p-3 bg-white border border-indigo-200 rounded-xl outline-none text-sm font-bold text-slate-700">
                         <option value="Pendataan Awal">Pendataan Awal (Bukan Mutasi Baru)</option>
@@ -478,12 +492,27 @@
                             <select id="w-jk" class="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"><option value="L">Laki-Laki</option><option value="P">Perempuan</option></select>
                         </div>
                         
+                        <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Status Hubungan Keluarga</label>
+                            <select id="w-shdk" class="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Kepala Keluarga">Kepala Keluarga</option>
+                                <option value="Suami">Suami</option>
+                                <option value="Istri">Istri</option>
+                                <option value="Anak">Anak</option>
+                                <option value="Menantu">Menantu</option>
+                                <option value="Cucu">Cucu</option>
+                                <option value="Orang Tua">Orang Tua</option>
+                                <option value="Mertua">Mertua</option>
+                                <option value="Famili Lain">Famili Lain</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
                         <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Agama</label>
                             <select id="w-agama" class="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"><option value="Islam">Islam</option><option value="Kristen">Kristen</option><option value="Katolik">Katolik</option><option value="Hindu">Hindu</option><option value="Buddha">Buddha</option><option value="Konghucu">Konghucu</option><option value="Lainnya">Lainnya</option></select>
                         </div>
                         <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Status Perkawinan</label>
                             <select id="w-kawin" class="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup (Duda/Janda)</option><option value="Cerai Mati">Cerai Mati (Duda/Janda)</option></select>
                         </div>
+                        
                         <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Golongan Darah</label>
                             <select id="w-goldar" class="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"><option value="Tidak Tahu">Tidak Tahu</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select>
                         </div>
@@ -547,7 +576,7 @@
 
     <!-- Modal Agenda -->
     <div id="modal-kegiatan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg fade-in"><div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-3xl"><h3 class="text-base sm:text-lg font-extrabold">Tambah Agenda</h3><button onclick="closeModal('modal-kegiatan')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times text-xl"></i></button></div><form id="form-kegiatan" onsubmit="simpanKegiatan(event)" class="p-4 sm:p-6 space-y-4"><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Pelaksana</label><select id="kg-org" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"><option value="LPMK">LPMK</option><option value="PKK">PKK</option><option value="Takmir">Takmir Masjid</option><option value="Muda Mudi">Muda Mudi</option><option value="Posyandu Balita">Posyandu Balita</option><option value="Posyandu Lansia">Posyandu Lansia</option><option value="RT 01">RT 01</option><option value="RT 02">RT 02</option><option value="RT 03">RT 03</option><option value="RT 04">RT 04</option><option value="RT 05">RT 05</option><option value="RT 06">RT 06</option><option value="RT 07">RT 07</option><option value="RT 08">RT 08</option><option value="RT 09">RT 09</option></select></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Tanggal</label><input type="date" id="kg-tgl" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Nama Agenda</label><input type="text" id="kg-agenda" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Hasil / Keputusan</label><textarea id="kg-keputusan" required rows="3" class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></textarea></div><button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 sm:py-3.5 rounded-xl shadow-lg transition-all">Simpan Agenda</button></form></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg fade-in"><div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-3xl"><h3 class="text-base sm:text-lg font-extrabold" id="modal-kegiatan-title">Tambah Agenda</h3><button onclick="closeModal('modal-kegiatan')" class="text-slate-400 hover:text-slate-700"><i class="fas fa-times text-xl"></i></button></div><form id="form-kegiatan" onsubmit="simpanKegiatan(event)" class="p-4 sm:p-6 space-y-4"><input type="hidden" id="kg-id"><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Pelaksana</label><select id="kg-org" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"><option value="LPMK">LPMK</option><option value="PKK">PKK</option><option value="Takmir">Takmir Masjid</option><option value="Muda Mudi">Muda Mudi</option><option value="Posyandu Balita">Posyandu Balita</option><option value="Posyandu Lansia">Posyandu Lansia</option><option value="RT 01">RT 01</option><option value="RT 02">RT 02</option><option value="RT 03">RT 03</option><option value="RT 04">RT 04</option><option value="RT 05">RT 05</option><option value="RT 06">RT 06</option><option value="RT 07">RT 07</option><option value="RT 08">RT 08</option><option value="RT 09">RT 09</option></select></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Tanggal</label><input type="date" id="kg-tgl" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Nama Agenda</label><input type="text" id="kg-agenda" required class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></div><div><label class="block text-xs sm:text-sm font-bold mb-1.5">Hasil / Keputusan</label><textarea id="kg-keputusan" required rows="3" class="w-full p-2.5 sm:p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"></textarea></div><button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 sm:py-3.5 rounded-xl shadow-lg transition-all">Simpan Agenda</button></form></div>
     </div>
 
     <!-- Modal Pengguna -->
@@ -652,67 +681,80 @@
             }
         });
 
-        // DATA KOSONG (Dummy hanya akan dimuat jika IS_PREVIEW = true)
-        let dbUsers = [];
-        let dbWarga = [];
-        let dbMutasi = []; 
-        let dbKegiatan = []; 
-        let dbLaporan = [];
-        let dbPengumuman = [];
+        // DATA DUMMY AWAL
+        let dbUsers = [
+            { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
+            { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
+        ];
+
+        let dbWarga = [
+            { id: 1, nik: '3404010101900001', kk: '3404010101900001', nama: 'Budi Santoso', tempat: 'Bantul', tgl: '1990-01-01', jk: 'L', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['LPMK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'O', telepon: '08123456789', pekerjaan: 'Pegawai Negeri / PNS', pendapatan: '3 Juta - 5 Juta', hobi: 'Bersepeda', kesehatan: 'Sehat', bantuan: [], shdk: 'Kepala Keluarga' },
+            { id: 2, nik: '3404010202950002', kk: '3404010101900001', nama: 'Siti Aminah', tempat: 'Bantul', tgl: '1995-02-02', jk: 'P', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['PKK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'A', telepon: '08198765432', pekerjaan: 'Ibu Rumah Tangga', pendapatan: 'Belum/Tidak Berpenghasilan', hobi: 'Memasak', kesehatan: 'Asma', bantuan: ['PKH', 'BPNT'], shdk: 'Istri' },
+            { id: 3, nik: '3404010303800003', kk: '3404010303800003', nama: 'Joko Widodo', tempat: 'Solo', tgl: '1980-03-03', jk: 'L', domisili: 'Pengontrak', rt: 'RT 02', status: 'Aktif', organisasi: [], agama: 'Kristen', status_kawin: 'Cerai Mati', gol_darah: 'B', telepon: '0856123123', pekerjaan: 'Wiraswasta / Pedagang', pendapatan: '> 5 Juta', hobi: 'Membaca', kesehatan: 'Hipertensi', bantuan: [], shdk: 'Kepala Keluarga' },
+            { id: 4, nik: '3404010404600004', kk: '3404010404600004', nama: 'Mbah Kromo', tempat: 'Bantul', tgl: '1955-04-04', jk: 'L', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['Posyandu Lansia'], agama: 'Islam', status_kawin: 'Cerai Mati', gol_darah: 'O', telepon: '', pekerjaan: 'Pensiunan', pendapatan: '< 1 Juta', hobi: 'Berkebun', kesehatan: 'Hipertensi', bantuan: ['BLT'], shdk: 'Kepala Keluarga' },
+            { id: 5, nik: '3404010505230005', kk: '3404010101900001', nama: 'Dedek Bayi', tempat: 'Bantul', tgl: '2023-05-05', jk: 'P', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['Posyandu Balita'], agama: 'Islam', status_kawin: 'Belum Kawin', gol_darah: 'O', telepon: '', pekerjaan: 'Belum / Tidak Bekerja', pendapatan: 'Belum/Tidak Berpenghasilan', hobi: 'Bermain', kesehatan: 'Sehat', bantuan: [], shdk: 'Anak' }
+        ];
+
+        let dbMutasi = []; let dbKegiatan = []; let dbLaporan = [];
+        let dbPengumuman = [
+            { id: 1, tanggal: new Date().toISOString().split('T')[0], judul: 'Pengambilan Bantuan Tahap 3', isi: 'Diberitahukan kepada seluruh warga penerima bantuan agar mengambil dana di Balai Padukuhan besok pagi pukul 09.00 WIB.' }
+        ];
 
         async function loadFromMemory() {
-            if (IS_PREVIEW) {
-                // Masukkan data dummy jika mode Preview Aktif
-                dbUsers = [
-                    { username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' },
-                    { username: 'peserta', password: 'edudigital', role: 'RT', rt: 'RT 01', avatar: '' }
-                ];
-                dbWarga = [
-                    { id: 1, nik: '3404010101900001', kk: '3404010101900001', nama: 'Budi Santoso', tempat: 'Bantul', tgl: '1990-01-01', jk: 'L', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['LPMK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'O', telepon: '08123456789', pekerjaan: 'Pegawai Negeri / PNS', pendapatan: '3 Juta - 5 Juta', hobi: 'Bersepeda', kesehatan: 'Sehat', bantuan: [] },
-                    { id: 2, nik: '3404010202950002', kk: '3404010101900001', nama: 'Siti Aminah', tempat: 'Bantul', tgl: '1995-02-02', jk: 'P', domisili: 'Tetap', rt: 'RT 01', status: 'Aktif', organisasi: ['PKK'], agama: 'Islam', status_kawin: 'Kawin', gol_darah: 'A', telepon: '08198765432', pekerjaan: 'Ibu Rumah Tangga', pendapatan: 'Belum/Tidak Berpenghasilan', hobi: 'Memasak', kesehatan: 'Asma', bantuan: ['PKH', 'BPNT'] }
-                ];
-                dbPengumuman = [
-                    { id: 1, tanggal: new Date().toISOString().split('T')[0], judul: 'Pengumuman Dummy', isi: 'Ganti IS_PREVIEW ke false untuk memakai Google Sheets asli.' }
-                ];
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.disabled = true;
+                btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memuat Database...';
+                btnLogin.classList.add('opacity-70', 'cursor-not-allowed');
+            }
 
+            if (IS_PREVIEW) {
                 try {
                     const mw = localStorage.getItem('sidukuh_warga'); if(mw && JSON.parse(mw).length > 0) dbWarga = JSON.parse(mw);
                     const mm = localStorage.getItem('sidukuh_mutasi'); if(mm) dbMutasi = JSON.parse(mm);
                     const mu = localStorage.getItem('sidukuh_users'); if(mu && JSON.parse(mu).length > 0) dbUsers = JSON.parse(mu);
                     const mp = localStorage.getItem('sidukuh_pengumuman'); if(mp) dbPengumuman = JSON.parse(mp);
                 } catch(err) { }
+                enableLoginButton();
             } else {
-                const btnLogin = document.getElementById('btn-login');
-                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") {
-                    if (btnLogin) btnLogin.innerHTML = 'URL GAS Belum Diatur!';
+                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) {
+                    if (btnLogin) btnLogin.innerHTML = 'Error: URL GAS Belum Valid';
                     return;
                 }
-                
-                if (btnLogin) {
-                    btnLogin.disabled = true;
-                    btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menghubungkan Google Sheets...';
-                }
-
                 try { 
                     const res = await fetch(GAS_URL + "?action=getData"); 
                     const data = await res.json(); 
                     
-                    if(data.users && data.users.length > 0) dbUsers = data.users; else dbUsers = [{ username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' }]; 
+                    if(data.users) dbUsers = data.users.length > 0 ? data.users : [{ username: 'admin', password: 'admin2026', role: 'Dukuh', rt: 'Semua', avatar: '' }]; 
                     if(data.warga) dbWarga = data.warga; 
                     if(data.mutasi) dbMutasi = data.mutasi; 
                     if(data.kegiatan) dbKegiatan = data.kegiatan; 
                     if(data.laporan) dbLaporan = data.laporan; 
                     if(data.pengumuman) dbPengumuman = data.pengumuman; 
 
-                    if (btnLogin) {
-                        btnLogin.disabled = false;
-                        btnLogin.innerHTML = 'Masuk ke Sistem <i class="fas fa-arrow-right ml-2"></i>';
+                    enableLoginButton();
+                    
+                    if (currentUser) {
+                        applyDukuhFilter(); 
+                        renderOrganisasiTable();
+                        if (currentUser.role === 'Dukuh') {
+                            renderPenggunaTable();
+                            renderPengumumanTable();
+                        }
                     }
                 } catch(e) { 
                     console.error("Gagal load data GAS", e); 
-                    if (btnLogin) btnLogin.innerHTML = 'Koneksi Ditolak (Error)';
-                    showToast("Gagal Terhubung! Pastikan Deploy GAS aksesnya 'Siapa Saja' (Anyone)");
+                    if (btnLogin) btnLogin.innerHTML = 'Gagal Memuat DB (Periksa Koneksi)';
                 }
+            }
+        }
+
+        function enableLoginButton() {
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Masuk ke Sistem <i class="fas fa-arrow-right ml-2"></i>';
+                btnLogin.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -720,7 +762,7 @@
             if (IS_PREVIEW) {
                 localStorage.setItem('sidukuh_warga', JSON.stringify(dbWarga)); localStorage.setItem('sidukuh_mutasi', JSON.stringify(dbMutasi)); localStorage.setItem('sidukuh_users', JSON.stringify(dbUsers)); localStorage.setItem('sidukuh_pengumuman', JSON.stringify(dbPengumuman));
             } else {
-                if(!GAS_URL || GAS_URL === "URL_DEPLOY_GAS_ANDA_DISINI") return;
+                if(!GAS_URL || !GAS_URL.startsWith("https://script.google.com/")) return;
                 try { await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', users: dbUsers, warga: dbWarga, mutasi: dbMutasi, kegiatan: dbKegiatan, laporan: dbLaporan, pengumuman: dbPengumuman }) }); } catch(e) { console.error("Gagal save data GAS", e); }
             }
         }
@@ -883,6 +925,163 @@
             reader.readAsDataURL(file);
         }
 
+        // FUNGSI AI SCAN KK
+        let base64KKImage = "";
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { showToast("Ukuran foto maksimal 5MB"); return; }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                base64KKImage = e.target.result.split(',')[1]; 
+                document.getElementById('scan-preview-img').src = e.target.result;
+                document.getElementById('scan-preview-container').classList.remove('hidden');
+                
+                const statusText = document.getElementById('scan-status');
+                statusText.innerText = "Foto siap diekstrak. Tekan tombol Ekstrak Data.";
+                statusText.className = "text-xs font-bold mt-3 text-indigo-600 block";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function hapusPreviewKK() {
+            base64KKImage = "";
+            const fileInput = document.getElementById('scan-kk-file'); if(fileInput) fileInput.value = '';
+            const img = document.getElementById('scan-preview-img'); if(img) img.src = '';
+            const container = document.getElementById('scan-preview-container'); if(container) container.classList.add('hidden');
+            const statusText = document.getElementById('scan-status'); if(statusText) statusText.classList.add('hidden');
+        }
+
+        async function prosesScanKK() {
+            if (!base64KKImage) { showToast("Pilih atau ambil foto KK/KTP terlebih dahulu!"); return; }
+            
+            const btnScan = document.getElementById('btn-scan-ai');
+            const statusText = document.getElementById('scan-status');
+            
+            btnScan.disabled = true;
+            btnScan.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i> Memproses AI...';
+            statusText.innerText = "AI sedang membaca dokumen... Proses ini butuh waktu beberapa detik.";
+            statusText.className = "text-xs font-bold mt-3 text-amber-600 animate-pulse block";
+
+            const promptStr = `Anda adalah sistem OCR cerdas. Ekstrak data kependudukan dari gambar dokumen Kartu Keluarga (KK) atau KTP ini. Kembalikan HANYA dalam format JSON murni tanpa tag markdown (jangan pakai \`\`\`json). Struktur JSON wajib:
+            {
+              "nik": "Ambil nomor NIK/KTP jika ada, 16 digit angka",
+              "kk": "Ambil No KK jika ada, biasanya paling atas, 16 digit angka",
+              "nama": "Nama Lengkap, huruf kapital",
+              "tempatLahir": "Hanya nama kota/kabupaten Tempat Lahir",
+              "tanggalLahir": "Tanggal Lahir ubah formatnya HANYA menjadi YYYY-MM-DD",
+              "jenisKelamin": "L untuk LAKI-LAKI, P untuk PEREMPUAN",
+              "statusDalamKeluarga": "Status Hubungan Keluarga (Kepala Keluarga, Suami, Istri, Anak, Menantu, Cucu, dll)",
+              "agama": "Contoh: Islam, Kristen, Katolik, dll",
+              "statusPerkawinan": "Contoh: Belum Kawin, Kawin, Cerai Hidup, Cerai Mati",
+              "golonganDarah": "A, B, AB, O, atau Tidak Tahu",
+              "pekerjaan": "Jenis Pekerjaan"
+            }
+            Bila ada data yang buram, tidak ditemukan, atau Anda ragu, isi dengan string kosong "". Pastikan hasil akhirnya adalah objek JSON yang siap di JSON.parse().`;
+
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: promptStr },
+                        { inlineData: { mimeType: "image/jpeg", data: base64KKImage } }
+                    ]
+                }]
+            };
+
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+                const textOutput = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (textOutput) {
+                    const jsonStr = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const data = JSON.parse(jsonStr);
+                    
+                    if(data.nik) document.getElementById('w-nik').value = data.nik;
+                    if(data.kk) document.getElementById('w-kk').value = data.kk;
+                    if(data.nama) document.getElementById('w-nama').value = data.nama;
+                    if(data.tempatLahir) document.getElementById('w-tempat').value = data.tempatLahir;
+                    if(data.tanggalLahir) document.getElementById('w-tgl').value = data.tanggalLahir;
+                    
+                    if(data.jenisKelamin) {
+                        const jk = data.jenisKelamin.toUpperCase();
+                        if (jk === 'L' || jk === 'P') document.getElementById('w-jk').value = jk;
+                    }
+                    
+                    if(data.statusDalamKeluarga) {
+                        const sh = String(data.statusDalamKeluarga).toLowerCase();
+                        const shOpts = Array.from(document.getElementById('w-shdk').options).map(o => o.value.toLowerCase());
+                        const matchSh = shOpts.find(o => sh.includes(o) || o.includes(sh));
+                        if(matchSh) {
+                            Array.from(document.getElementById('w-shdk').options).forEach(opt => {
+                                if(opt.value.toLowerCase() === matchSh) document.getElementById('w-shdk').value = opt.value;
+                            });
+                        }
+                    }
+
+                    if(data.agama) {
+                        const agOpts = Array.from(document.getElementById('w-agama').options).map(o => o.value);
+                        const match = agOpts.find(o => String(data.agama).toLowerCase().includes(o.toLowerCase()));
+                        if(match) document.getElementById('w-agama').value = match;
+                    }
+                    
+                    if(data.statusPerkawinan) {
+                        const sk = String(data.statusPerkawinan).toLowerCase();
+                        if(sk.includes('belum')) document.getElementById('w-kawin').value = 'Belum Kawin';
+                        else if(sk.includes('cerai mati')) document.getElementById('w-kawin').value = 'Cerai Mati';
+                        else if(sk.includes('cerai')) document.getElementById('w-kawin').value = 'Cerai Hidup';
+                        else if(sk.includes('kawin')) document.getElementById('w-kawin').value = 'Kawin';
+                    }
+                    
+                    if(data.golonganDarah) {
+                        const gdOpts = ['A', 'B', 'AB', 'O', 'Tidak Tahu'];
+                        const gd = String(data.golonganDarah).toUpperCase().replace(/[^ABO]/g, '');
+                        if(gdOpts.includes(gd)) document.getElementById('w-goldar').value = gd;
+                    }
+
+                    if(data.pekerjaan) {
+                         const pk = String(data.pekerjaan).toLowerCase();
+                         const pOpts = document.getElementById('w-pekerjaan').options;
+                         let found = false;
+                         for(let i=0; i<pOpts.length; i++) {
+                             if(pOpts[i].value.toLowerCase().includes(pk) || pk.includes(pOpts[i].value.toLowerCase())) {
+                                 document.getElementById('w-pekerjaan').value = pOpts[i].value; found = true; break;
+                             }
+                         }
+                         if(!found) {
+                             if(pk.includes('wiraswasta') || pk.includes('dagang')) document.getElementById('w-pekerjaan').value = 'Wiraswasta / Pedagang';
+                             else if(pk.includes('pns') || pk.includes('negeri')) document.getElementById('w-pekerjaan').value = 'Pegawai Negeri / PNS';
+                             else if(pk.includes('mengurus rumah') || pk.includes('ibu')) document.getElementById('w-pekerjaan').value = 'Ibu Rumah Tangga';
+                             else if(pk.includes('pelajar') || pk.includes('mahasiswa')) document.getElementById('w-pekerjaan').value = 'Pelajar / Mahasiswa';
+                             else if(pk.includes('karyawan') || pk.includes('swasta')) document.getElementById('w-pekerjaan').value = 'Pegawai Swasta';
+                             else document.getElementById('w-pekerjaan').value = 'Lainnya';
+                         }
+                    }
+
+                    statusText.innerText = "Sukses! Data berhasil diekstrak dan diisikan ke form.";
+                    statusText.className = "text-xs font-bold mt-3 text-emerald-600 block";
+                    showToast("Scan KK Berhasil!");
+                } else {
+                    throw new Error("Respon AI tidak valid");
+                }
+            } catch (error) {
+                console.error("AI Error:", error);
+                statusText.innerText = "Gagal memproses gambar. Pastikan tulisan terbaca jelas dan dokumen tidak terpotong.";
+                statusText.className = "text-xs font-bold mt-3 text-rose-600 block";
+                showToast("Gagal membaca KK. Coba foto ulang.");
+            } finally {
+                btnScan.disabled = false;
+                btnScan.innerHTML = '<i class="fas fa-robot text-lg"></i> Ekstrak Data';
+            }
+        }
+
+
         function applyDukuhFilter() { renderDashboard(); renderTableWarga(); renderTableMutasi(); renderLaporan(); }
 
         function getFilteredWarga() {
@@ -912,7 +1111,6 @@
             return age < 0 ? 0 : age;
         }
 
-        // Fungsi Helper untuk Accordion Daftar Nama
         function toggleAccordion(rtId) {
             const content = document.getElementById(`content-${rtId}`);
             const btn = document.getElementById(`btn-${rtId}`);
@@ -921,10 +1119,10 @@
                 btn.setAttribute('aria-expanded', !isExpanded);
                 if (!isExpanded) {
                     content.classList.add('open');
-                    content.classList.add('p-2'); // Tambah padding saat terbuka
+                    content.classList.add('p-2');
                 } else {
                     content.classList.remove('open');
-                    content.classList.remove('p-2'); // Hilangkan padding saat tertutup
+                    content.classList.remove('p-2');
                 }
             }
         }
@@ -961,7 +1159,6 @@
                 const isBalita = String(currentUser.rt).includes('Balita'); 
                 let targetTotal = 0, targetL = 0, targetP = 0;
                 
-                // TAMBAHAN: Variabel untuk menyimpan hitungan dan DAFTAR NAMA per RT
                 let rtStats = { 
                     'RT 01': {total:0, L:0, P:0, names: []}, 'RT 02': {total:0, L:0, P:0, names: []}, 
                     'RT 03': {total:0, L:0, P:0, names: []}, 'RT 04': {total:0, L:0, P:0, names: []}, 
@@ -987,13 +1184,10 @@
                         if(jk === 'L') targetL++; 
                         else if(jk === 'P') targetP++; 
                         
-                        // TAMBAHAN: Masukkan ke perhitungan per RT dan simpan nama
                         if (w.rt && rtStats[w.rt] !== undefined) {
                             rtStats[w.rt].total++;
                             if (jk === 'L') rtStats[w.rt].L++;
                             else if (jk === 'P') rtStats[w.rt].P++;
-                            
-                            // Simpan nama, jenis kelamin, dan umur
                             rtStats[w.rt].names.push({ nama: w.nama, jk: jk, umur: u });
                         }
                     }
@@ -1004,21 +1198,16 @@
                 const psl = document.getElementById('posy-stat-l'); if(psl) psl.innerText = targetL; 
                 const psp = document.getElementById('posy-stat-p'); if(psp) psp.innerText = targetP;
 
-                // TAMBAHAN: Render kotak-kotak Rincian RT ke HTML
                 const rtBreakdownDiv = document.getElementById('posy-rt-breakdown');
                 if (rtBreakdownDiv) {
                     rtBreakdownDiv.innerHTML = '';
                     for (let rt in rtStats) {
                         const s = rtStats[rt];
-                        // Buat ID unik yang aman untuk HTML (misal: 'RT 01' menjadi 'RT-01')
                         const safeRtId = rt.replace(/\s+/g, '-'); 
-                        
-                        // Siapkan daftar nama dalam bentuk HTML
                         let namesHtml = '';
                         if (s.names.length > 0) {
                             namesHtml = '<ul class="space-y-1 mt-1">';
-                            s.names.forEach((person, idx) => {
-                                // Ikon berbeda berdasarkan jenis kelamin
+                            s.names.forEach((person) => {
                                 const icon = person.jk === 'L' ? '<i class="fas fa-male text-cyan-500 w-3"></i>' : '<i class="fas fa-female text-pink-500 w-3"></i>';
                                 namesHtml += `<li class="flex justify-between items-center text-[10px] text-slate-600 border-b border-slate-100 last:border-0 pb-1 last:pb-0"><div class="flex items-center gap-1.5 truncate pr-2">${icon} <span class="truncate">${person.nama}</span></div><span class="font-bold text-slate-400 whitespace-nowrap">${person.umur} th</span></li>`;
                             });
@@ -1039,13 +1228,9 @@
                                     <span class="text-pink-500 flex items-center gap-1" title="Perempuan"><i class="fas fa-female"></i> P: ${s.P}</span>
                                 </div>
                             </div>
-                            
-                            <!-- Tombol Accordion -->
                             <button id="btn-${safeRtId}" aria-expanded="false" onclick="toggleAccordion('${safeRtId}')" class="accordion-btn w-full bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600 py-1.5 flex justify-center items-center gap-1 border-t border-slate-200 transition-colors">
                                 Lihat Daftar Nama <i class="fas fa-chevron-down accordion-icon text-[8px]"></i>
                             </button>
-                            
-                            <!-- Isi Accordion (Daftar Nama) -->
                             <div id="content-${safeRtId}" class="accordion-content bg-white border-t border-slate-100 no-scrollbar">
                                 ${namesHtml}
                             </div>
@@ -1061,12 +1246,17 @@
                     if(pkData.length === 0) pAgendaDiv.innerHTML = `<p class="text-sm text-slate-500 italic">Belum ada agenda terbaru.</p>`;
                     else {
                         pkData.sort((a,b) => b.id - a.id).slice(0,3).forEach(k => {
+                            let btnAksi = '';
+                            if (currentUser && (currentUser.role === 'Dukuh' || currentUser.rt === k.rt_pembuat || (currentUser.role === 'Organisasi' && currentUser.rt === k.organisasi))) {
+                                btnAksi = `<div class="mt-3 pt-3 border-t border-slate-100 flex justify-end gap-2"><button onclick="editKegiatan(${k.id})" class="text-[10px] bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-edit mr-1"></i> Edit</button><button onclick="hapusKegiatan(${k.id})" class="text-[10px] bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-trash mr-1"></i> Hapus</button></div>`;
+                            }
                             pAgendaDiv.innerHTML += `
                                 <div class="flex items-start pb-4 border-b border-slate-100 last:border-0 last:pb-0">
                                     <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0 mr-3 mt-1">${(k.organisasi || '').substring(0,3).toUpperCase()}</div>
-                                    <div class="flex-1">
+                                    <div class="flex-1 w-full overflow-hidden">
                                         <div class="flex items-center justify-between mb-1"><h4 class="text-sm font-bold text-slate-800">${k.agenda}</h4><span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md ml-2 whitespace-nowrap">${k.organisasi}</span></div>
                                         <p class="text-xs text-slate-600 mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${k.keputusan}</p>
+                                        ${btnAksi}
                                     </div>
                                 </div>`;
                         });
@@ -1102,15 +1292,33 @@
             if (aD) {
                 aD.innerHTML = '';
                 let kD = dbKegiatan; if (currentUser.role === 'RT') kD = kD.filter(k => k.rt_pembuat === currentUser.rt || k.organisasi === currentUser.rt); else { const df = document.getElementById('dukuh-filter'); if(df) { const f = df.value; if(f !== 'Semua') kD = kD.filter(k => k.rt_pembuat === f || k.organisasi === f); } }
-                if(kD.length === 0) aD.innerHTML = `<p class="text-sm text-slate-500 italic">Belum ada agenda terbaru.</p>`; else { kD.sort((a,b) => b.id - a.id).slice(0,3).forEach(k => { const ini = (k.organisasi || '').substring(0,3).toUpperCase(); aD.innerHTML += `<div class="flex items-start pb-4 border-b border-slate-100 last:border-0 last:pb-0"><div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0 mr-3 mt-1">${ini}</div><div class="flex-1"><div class="flex items-center justify-between mb-1"><h4 class="text-sm font-bold text-slate-800">${k.agenda}</h4><span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md ml-2 whitespace-nowrap">${k.organisasi}</span></div><p class="text-xs text-slate-600 mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${k.keputusan}</p></div></div>`; }); }
+                if(kD.length === 0) aD.innerHTML = `<p class="text-sm text-slate-500 italic">Belum ada agenda terbaru.</p>`; else { 
+                    kD.sort((a,b) => b.id - a.id).slice(0,3).forEach(k => { 
+                        const ini = (k.organisasi || '').substring(0,3).toUpperCase(); 
+                        let btnAksi = '';
+                        if (currentUser && (currentUser.role === 'Dukuh' || currentUser.rt === k.rt_pembuat || (currentUser.role === 'Organisasi' && currentUser.rt === k.organisasi))) {
+                            btnAksi = `<div class="mt-3 pt-3 border-t border-slate-100 flex justify-end gap-2"><button onclick="editKegiatan(${k.id})" class="text-[10px] bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-edit mr-1"></i> Edit</button><button onclick="hapusKegiatan(${k.id})" class="text-[10px] bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-trash mr-1"></i> Hapus</button></div>`;
+                        }
+                        aD.innerHTML += `
+                        <div class="flex items-start pb-4 border-b border-slate-100 last:border-0 last:pb-0">
+                            <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-xs shrink-0 mr-3 mt-1">${ini}</div>
+                            <div class="flex-1 w-full overflow-hidden">
+                                <div class="flex items-center justify-between mb-1"><h4 class="text-sm font-bold text-slate-800">${k.agenda}</h4><span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md ml-2 whitespace-nowrap">${k.organisasi}</span></div>
+                                <p class="text-xs text-slate-600 mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${k.keputusan}</p>
+                                ${btnAksi}
+                            </div>
+                        </div>`; 
+                    }); 
+                }
             }
         }
 
-        // BUKA FORM WARGA
         function bukaFormWarga(mode) {
             const formWarga = document.getElementById('form-warga'); if(formWarga) formWarga.reset();
             const wId = document.getElementById('warga-id'); if(wId) wId.value = '';
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            if (typeof hapusPreviewKK === 'function') hapusPreviewKK();
             
             document.querySelectorAll('#form-warga input, #form-warga select').forEach(el => el.disabled = false);
             const btnSw = document.getElementById('btn-simpan-warga'); if(btnSw) btnSw.classList.remove('hidden');
@@ -1165,7 +1373,7 @@
             
             const sw = document.getElementById('search-warga');
             const q = sw ? sw.value.toLowerCase() : '';
-            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q));
+            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q) || String(w.kk || '').toLowerCase().includes(q));
 
             if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500 italic">Data tidak ditemukan.</td></tr>`; return; }
 
@@ -1185,7 +1393,7 @@
                 let bdgBantuan = w.bantuan && w.bantuan.length > 0 ? `<div class="text-[10px] font-bold text-indigo-600 mt-1"><i class="fas fa-gift mr-1"></i> ${w.bantuan.join(', ')}</div>` : `<div class="text-[10px] text-slate-400 mt-1">- Non Bantuan -</div>`;
 
                 tr.innerHTML = `
-                    <td class="px-4 sm:px-6 py-4"><div class="text-sm font-extrabold">${w.nik}</div><div class="text-[10px] sm:text-xs text-slate-500 font-mono mt-1">KK: ${w.kk}</div></td>
+                    <td class="px-4 sm:px-6 py-4"><div class="text-sm font-extrabold">${w.nik}</div><div class="text-[10px] sm:text-xs text-slate-500 font-mono mt-1">KK: ${w.kk} • <span class="font-bold text-indigo-500">${w.shdk || 'Warga'}</span></div></td>
                     <td class="px-4 sm:px-6 py-4"><div class="text-sm font-bold text-slate-800">${w.nama}</div><div class="text-[10px] sm:text-xs text-slate-500 mt-1">${hitungUmur(w.tgl)} Thn | Darah: ${w.gol_darah || '-'} | Kes: ${w.kesehatan || 'Sehat'}</div></td>
                     <td class="px-4 sm:px-6 py-4 font-bold hidden sm:table-cell ${w.jk==='L'?'text-cyan-600':'text-pink-500'}">${w.jk}</td>
                     <td class="px-4 sm:px-6 py-4 text-sm hidden md:table-cell"><div class="font-bold mb-1">${w.rt}</div><div class="text-[10px] font-medium text-slate-500 max-w-[120px] truncate">${w.pekerjaan || 'Pekerjaan -'}</div>${bdgDomisili}</td>
@@ -1220,7 +1428,7 @@
             
             const sw = document.getElementById('search-warga');
             const q = sw ? sw.value.toLowerCase() : '';
-            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q));
+            if (q) data = data.filter(w => String(w.nama || '').toLowerCase().includes(q) || String(w.nik || '').toLowerCase().includes(q) || String(w.kk || '').toLowerCase().includes(q));
 
             if(data.length === 0) { showToast("Tidak ada data untuk dicetak!"); return; }
 
@@ -1234,7 +1442,7 @@
             
             data.forEach((w, i) => {
                 let bn = w.bantuan && w.bantuan.length > 0 ? w.bantuan.join(', ') : '-';
-                html += "<tr><td class=\"tc\">" + (i+1) + "</td><td>KK: '" + w.kk + "<br>NIK: '" + w.nik + "</td><td>" + w.nama + "</td><td class=\"tc\">" + w.jk + "</td><td>Umur: " + hitungUmur(w.tgl) + " Th<br>Darah: " + (w.gol_darah || '-') + "<br>Kes: " + (w.kesehatan || '-') + "</td><td>Kerja: " + (w.pekerjaan || '-') + "<br>Hobi: " + (w.hobi || '-') + "</td><td>" + (w.telepon || '-') + "</td><td>" + bn + "</td></tr>";
+                html += "<tr><td class=\"tc\">" + (i+1) + "</td><td>KK: '" + w.kk + "<br>NIK: '" + w.nik + "<br><b style='color:#4f46e5'>" + (w.shdk || '-') + "</b></td><td>" + w.nama + "</td><td class=\"tc\">" + w.jk + "</td><td>Umur: " + hitungUmur(w.tgl) + " Th<br>Darah: " + (w.gol_darah || '-') + "<br>Kes: " + (w.kesehatan || '-') + "</td><td>Kerja: " + (w.pekerjaan || '-') + "<br>Hobi: " + (w.hobi || '-') + "</td><td>" + (w.telepon || '-') + "</td><td>" + bn + "</td></tr>";
             });
             html += "</tbody></table><p style=\"text-align:right;margin-top:20px;\">Dicetak: " + new Date().toLocaleString('id-ID') + "</p>" +
             "<scr" + "ipt>setTimeout(()=>{window.print();window.close();},500);</scr" + "ipt></body></html>";
@@ -1256,11 +1464,11 @@
             const wNik = document.getElementById('w-nik'); const wKk = document.getElementById('w-kk');
             const wNama = document.getElementById('w-nama'); const wTempat = document.getElementById('w-tempat');
             const wTgl = document.getElementById('w-tgl'); const wJk = document.getElementById('w-jk');
-            const wDom = document.getElementById('w-domisili'); const wAgama = document.getElementById('w-agama');
-            const wKawin = document.getElementById('w-kawin'); const wGoldar = document.getElementById('w-goldar');
-            const wTelp = document.getElementById('w-telepon'); const wPekerjaan = document.getElementById('w-pekerjaan');
-            const wPendapatan = document.getElementById('w-pendapatan'); const wHobi = document.getElementById('w-hobi');
-            const wKes = document.getElementById('w-kesehatan');
+            const wShdk = document.getElementById('w-shdk'); const wDom = document.getElementById('w-domisili');
+            const wAgama = document.getElementById('w-agama'); const wKawin = document.getElementById('w-kawin');
+            const wGoldar = document.getElementById('w-goldar'); const wTelp = document.getElementById('w-telepon');
+            const wPekerjaan = document.getElementById('w-pekerjaan'); const wPendapatan = document.getElementById('w-pendapatan');
+            const wHobi = document.getElementById('w-hobi'); const wKes = document.getElementById('w-kesehatan');
 
             const newData = {
                 id: id ? parseInt(id) : Date.now(), 
@@ -1278,7 +1486,8 @@
                 hobi: wHobi ? wHobi.value : '',
                 kesehatan: wKes ? wKes.value : '',
                 
-                organisasi: orgs, bantuan: bants
+                organisasi: orgs, bantuan: bants,
+                shdk: wShdk ? wShdk.value : 'Lainnya'
             };
 
             if (!id) {
@@ -1319,6 +1528,7 @@
             const wJk = document.getElementById('w-jk'); if(wJk) wJk.value = w.jk; 
             const wDom = document.getElementById('w-domisili'); if(wDom) wDom.value = w.domisili;
             
+            const wShdk = document.getElementById('w-shdk'); if(wShdk) wShdk.value = w.shdk || 'Lainnya';
             const wAgama = document.getElementById('w-agama'); if(wAgama) wAgama.value = w.agama || 'Islam';
             const wKawin = document.getElementById('w-kawin'); if(wKawin) wKawin.value = w.status_kawin || 'Belum Kawin';
             const wGoldar = document.getElementById('w-goldar'); if(wGoldar) wGoldar.value = w.gol_darah || 'Tidak Tahu';
@@ -1349,8 +1559,147 @@
         function prosesMutasi(e) { e.preventDefault(); const mwid = document.getElementById('mutasi-warga-id'); const id = mwid ? parseInt(mwid.value) : 0; const mj = document.getElementById('m-jenis'); const jen = mj ? mj.value : ''; const mk = document.getElementById('m-ket'); const ket = mk ? mk.value : ''; let w = dbWarga.find(x => x.id === id); if (w) { w.status = jen; dbMutasi.push({ id: Date.now(), tanggal: new Date().toISOString().split('T')[0], jenis: jen, nama: w.nama, rt: w.rt, ket: ket }); if(IS_PREVIEW) saveToMemory(); else { fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateWarga', data: w }) }); fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveData', mutasi: dbMutasi }) }); } showToast(`Warga sukses di-set ${jen}`); closeModal('modal-mutasi'); renderTableWarga(); renderTableMutasi(); renderDashboard(); } }
 
         function renderTableMutasi() { const tb = document.getElementById('mutasi-tbody'); if(!tb) return; tb.innerHTML = ''; let d = dbMutasi; if (currentUser.role === 'RT') d = d.filter(m => m.rt === currentUser.rt); else { const df = document.getElementById('dukuh-filter'); if (df && df.value !== 'Semua') d = d.filter(m => m.rt === df.value); } if (d.length === 0) { tb.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500 italic">Belum ada riwayat mutasi.</td></tr>`; return; } d.slice().sort((a,b) => b.id - a.id).forEach(m => { const tr = document.createElement('tr'); const cl = m.jenis === 'Meninggal' ? 'bg-slate-800 text-white' : m.jenis === 'Pergi' ? 'bg-rose-100 text-rose-700' : (m.jenis === 'Datang' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'); tr.innerHTML = `<td class="px-4 py-4 text-xs font-bold">${m.tanggal}</td><td class="px-4 py-4"><span class="px-2 py-1 text-[10px] font-bold rounded-lg ${cl}">${m.jenis}</span></td><td class="px-4 py-4 text-xs font-extrabold">${m.nama}</td><td class="px-4 py-4 text-xs hidden sm:table-cell">${m.rt}</td><td class="px-4 py-4 text-[10px] hidden md:table-cell">${m.ket}</td>`; tb.appendChild(tr); }); }
-        function renderOrganisasiTable() { const fro = document.getElementById('filter-rt-org'); const rt = currentUser.role === 'RT' ? currentUser.rt : (fro ? fro.value : 'Semua'); const fo = document.getElementById('filter-org'); const org = fo ? fo.value : ''; const aDiv = document.getElementById('agenda-list'); if(aDiv) { aDiv.innerHTML = ''; let dK = dbKegiatan.filter(k => k.organisasi === org); if(rt !== 'Semua') dK = dK.filter(k => k.rt_pembuat === rt); if (dK.length === 0) aDiv.innerHTML = '<p class="text-sm text-slate-500 italic p-2">Belum ada agenda.</p>'; dK.forEach(k => { aDiv.innerHTML += `<div class="bg-slate-50 rounded-2xl p-4 border border-slate-100"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-sm">${k.agenda}</h4><span class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded ml-2">${k.tanggal}</span></div><p class="text-xs text-slate-600">${k.keputusan}</p></div>`; }); } const wB = document.getElementById('anggota-tbody'); if(wB) { wB.innerHTML = ''; let wD = dbWarga.filter(w => !w.status || String(w.status).trim().toLowerCase() === 'aktif'); if(rt !== 'Semua') wD = wD.filter(w => w.rt === rt); if (org.startsWith('RT ')) wD = wD.filter(w => w.rt === org); else wD = wD.filter(w => w.organisasi && w.organisasi.includes(org)); if (wD.length === 0) wB.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-sm text-slate-500 italic">Belum ada anggota.</td></tr>`; wD.forEach(w => { wB.innerHTML += `<tr><td class="px-6 py-3 text-xs font-bold">${w.nama}</td><td class="px-6 py-3 text-xs">${hitungUmur(w.tgl)} Thn</td><td class="px-6 py-3 text-xs">${w.rt}</td></tr>`; }); } }
-        function simpanKegiatan(e) { e.preventDefault(); const ko = document.getElementById('kg-org'); const kt = document.getElementById('kg-tgl'); const ka = document.getElementById('kg-agenda'); const kk = document.getElementById('kg-keputusan'); dbKegiatan.push({ id: Date.now(), organisasi: ko ? ko.value : '', tanggal: kt ? kt.value : '', agenda: ka ? ka.value : '', keputusan: kk ? kk.value : '', rt_pembuat: currentUser.role === 'RT' ? currentUser.rt : 'Semua' }); saveToMemory(); showToast("Agenda disimpan!"); closeModal('modal-kegiatan'); renderOrganisasiTable(); renderDashboard(); }
+        function renderOrganisasiTable() { 
+            const fro = document.getElementById('filter-rt-org'); 
+            const rt = currentUser.role === 'RT' ? currentUser.rt : (fro ? fro.value : 'Semua'); 
+            const fo = document.getElementById('filter-org'); 
+            const org = fo ? fo.value : ''; 
+            
+            const aDiv = document.getElementById('agenda-list'); 
+            if(aDiv) { 
+                aDiv.innerHTML = ''; 
+                let dK = dbKegiatan.filter(k => k.organisasi === org); 
+                if(rt !== 'Semua') dK = dK.filter(k => k.rt_pembuat === rt); 
+                
+                if (dK.length === 0) {
+                    aDiv.innerHTML = '<p class="text-sm text-slate-500 italic p-2">Belum ada agenda.</p>'; 
+                } else {
+                    dK.sort((a,b) => b.id - a.id).forEach(k => { 
+                        let btnAksi = '';
+                        if (currentUser && (currentUser.role === 'Dukuh' || currentUser.rt === k.rt_pembuat || (currentUser.role === 'Organisasi' && currentUser.rt === k.organisasi))) {
+                            btnAksi = `
+                            <div class="mt-3 pt-3 border-t border-slate-200 flex justify-end gap-2">
+                                <button onclick="editKegiatan(${k.id})" class="text-[10px] bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-edit mr-1"></i> Edit</button>
+                                <button onclick="hapusKegiatan(${k.id})" class="text-[10px] bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center"><i class="fas fa-trash mr-1"></i> Hapus</button>
+                            </div>`;
+                        }
+                        aDiv.innerHTML += `
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-sm text-slate-800">${k.agenda}</h4>
+                                <span class="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md ml-2 shrink-0">${k.tanggal}</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">${k.keputusan}</p>
+                            ${btnAksi}
+                        </div>`; 
+                    }); 
+                }
+            } 
+            
+            const wB = document.getElementById('anggota-tbody'); 
+            if(wB) { 
+                wB.innerHTML = ''; 
+                let wD = dbWarga.filter(w => !w.status || String(w.status).trim().toLowerCase() === 'aktif'); 
+                if(rt !== 'Semua') wD = wD.filter(w => w.rt === rt); 
+                if (org.startsWith('RT ')) wD = wD.filter(w => w.rt === org); 
+                else wD = wD.filter(w => w.organisasi && w.organisasi.includes(org)); 
+                
+                if (wD.length === 0) wB.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-sm text-slate-500 italic">Belum ada anggota.</td></tr>`; 
+                wD.forEach(w => { 
+                    wB.innerHTML += `<tr><td class="px-6 py-3 text-xs font-bold text-slate-700">${w.nama}</td><td class="px-6 py-3 text-xs text-slate-500">${hitungUmur(w.tgl)} Thn</td><td class="px-6 py-3 text-xs text-slate-500">${w.rt}</td></tr>`; 
+                }); 
+            } 
+        }
+
+        function bukaFormKegiatan() {
+            const form = document.getElementById('form-kegiatan');
+            if(form) form.reset();
+            document.getElementById('kg-id').value = '';
+            document.getElementById('modal-kegiatan-title').innerText = 'Tambah Agenda Baru';
+
+            const kgOrg = document.getElementById('kg-org');
+            if (currentUser && currentUser.role !== 'Dukuh' && kgOrg) {
+                Array.from(kgOrg.options).forEach(opt => { 
+                    if(opt.value === currentUser.rt || opt.value.includes(currentUser.rt) || currentUser.rt.includes(opt.value)) {
+                        kgOrg.value = opt.value; 
+                    }
+                });
+                kgOrg.disabled = true;
+                kgOrg.classList.add('bg-slate-200');
+            } else if (kgOrg) {
+                kgOrg.disabled = false;
+                kgOrg.classList.remove('bg-slate-200');
+            }
+
+            openModal('modal-kegiatan');
+        }
+
+        function editKegiatan(id) {
+            const k = dbKegiatan.find(x => x.id === id);
+            if(!k) return;
+            document.getElementById('kg-id').value = k.id;
+            document.getElementById('kg-org').value = k.organisasi;
+            document.getElementById('kg-tgl').value = k.tanggal;
+            document.getElementById('kg-agenda').value = k.agenda;
+            document.getElementById('kg-keputusan').value = k.keputusan;
+
+            const kgOrg = document.getElementById('kg-org');
+            if (currentUser && currentUser.role !== 'Dukuh' && kgOrg) {
+                kgOrg.disabled = true;
+                kgOrg.classList.add('bg-slate-200');
+            } else if (kgOrg) {
+                kgOrg.disabled = false;
+                kgOrg.classList.remove('bg-slate-200');
+            }
+
+            document.getElementById('modal-kegiatan-title').innerText = "Edit Agenda & Keputusan";
+            openModal('modal-kegiatan');
+        }
+
+        function hapusKegiatan(id) {
+            customConfirm("Yakin ingin menghapus riwayat agenda ini secara permanen?", () => {
+                dbKegiatan = dbKegiatan.filter(k => k.id !== id);
+                saveToMemory();
+                showToast("Agenda berhasil dihapus!");
+                renderOrganisasiTable();
+                renderDashboard();
+            });
+        }
+
+        function simpanKegiatan(e) { 
+            e.preventDefault(); 
+            const kgId = document.getElementById('kg-id').value;
+            const ko = document.getElementById('kg-org').value; 
+            const kt = document.getElementById('kg-tgl').value; 
+            const ka = document.getElementById('kg-agenda').value; 
+            const kk = document.getElementById('kg-keputusan').value; 
+            
+            if (kgId) {
+                const idx = dbKegiatan.findIndex(k => k.id === parseInt(kgId));
+                if (idx !== -1) {
+                    dbKegiatan[idx].organisasi = ko;
+                    dbKegiatan[idx].tanggal = kt;
+                    dbKegiatan[idx].agenda = ka;
+                    dbKegiatan[idx].keputusan = kk;
+                }
+                showToast("Agenda diperbarui!");
+            } else {
+                dbKegiatan.push({ 
+                    id: Date.now(), 
+                    organisasi: ko, 
+                    tanggal: kt, 
+                    agenda: ka, 
+                    keputusan: kk, 
+                    rt_pembuat: currentUser.role === 'Dukuh' ? 'Semua' : currentUser.rt 
+                }); 
+                showToast("Agenda disimpan!");
+            }
+            
+            saveToMemory(); 
+            closeModal('modal-kegiatan'); 
+            renderOrganisasiTable(); 
+            renderDashboard(); 
+        }
         
         function renderLaporan() { const tb = document.getElementById('laporan-tbody'); if(!tb) return; tb.innerHTML = ''; const bk = document.getElementById('btn-kirim-laporan'); let d = dbLaporan; if (currentUser.role === 'RT') { if(bk) { bk.classList.remove('hidden'); bk.classList.add('flex'); } d = d.filter(l => l.rt === currentUser.rt); } else { if(bk) { bk.classList.add('hidden'); bk.classList.remove('flex'); } const df = document.getElementById('dukuh-filter'); if (df && df.value !== 'Semua') d = d.filter(l => l.rt === df.value); } if (d.length === 0) { tb.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500 italic">Belum ada laporan.</td></tr>`; return; } d.slice().sort((a,b) => b.id - a.id).forEach(l => { tb.innerHTML += `<tr class="hover:bg-slate-50"><td class="px-4 py-4 text-xs font-extrabold">${l.bulan}</td><td class="px-4 py-4 text-xs font-bold text-indigo-600">${l.rt}</td><td class="px-4 py-4 text-xs font-bold">${l.total} Jiwa</td><td class="px-4 py-4 text-xs text-slate-500">L:${l.l}|P:${l.p}</td><td class="px-4 py-4 text-[10px] bg-slate-100 rounded text-slate-600 m-2 hidden md:block">${l.mutasi}</td><td class="px-4 py-4"><span class="px-2 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-lg"><i class="fas fa-check mr-1"></i> Terkirim</span><span class="text-[10px] text-slate-400 mt-1 block">${l.waktu}</span></td></tr>`; }); }
         function kirimLaporan() { const n = new Date(); const b = n.toLocaleString('id-ID', { month: 'long', year: 'numeric' }); const i = dbLaporan.findIndex(l => l.rt === currentUser.rt && l.bulan === b); customConfirm(i !== -1 ? `Kirim ulang laporan ${b}?` : `Kirim laporan ${b}?`, () => { const dW = getFilteredWarga(); const ma = dbMutasi.filter(m => { const md = new Date(m.tanggal); return m.rt === currentUser.rt && md.getMonth() === n.getMonth() && md.getFullYear() === n.getFullYear(); }); const nL = { id: Date.now(), bulan: b, rt: currentUser.rt, total: dW.length, l: dW.filter(w => w.jk === 'L').length, p: dW.filter(w => w.jk === 'P').length, mutasi: `Lahir:${ma.filter(m=>m.jenis==='Lahir').length} | Meninggal:${ma.filter(m=>m.jenis==='Meninggal').length} | Datang:${ma.filter(m=>m.jenis==='Datang').length} | Pindah:${ma.filter(m=>m.jenis==='Pergi').length}`, waktu: n.toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) }; if (i !== -1) dbLaporan[i] = nL; else dbLaporan.push(nL); saveToMemory(); showToast("Terkirim!"); renderLaporan(); }); }
